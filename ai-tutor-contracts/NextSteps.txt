@@ -1,0 +1,173 @@
+﻿---
+
+PROJECT
+AI Maths Tutor – Backend (Phase 2 & 3): ASP.NET Core 9 + EF Core + PostgreSQL 17 + SignalR
+
+GOALS
+
+1. Implement the DB layer with EF Core models, mappings, migrations, and **seed** (aligning 1:1 with the approved schema).
+2. Expose REST endpoints + SignalR for the **Chat V1** feature (folders/threads/messages/files/attachments/references) with **tenancy** and **repository pattern**.
+3. Add unified **Problem Details (RFC 7807)** error contract with **server-side localization (i18n)** and correlation IDs.
+4. Keep **domain entities** separate from **persistence models** and **DTO/contracts** to support caching/views and future RAG integration.
+
+RUNTIME & LIBRARIES (no code, just use these)
+
+* .NET 9 (ASP.NET Core), EF Core (Npgsql provider), SignalR.
+* Localization via ASP.NET Core i18n (`IStringLocalizer` + resource catalogs).
+* Problem Details via built-in ASP.NET Core (`ProblemDetails`) or use hellang problem details library.
+* No need for mapping tool like automapper.
+* No need for JSON serializer like Newtonsoft (use System.Text.Json).
+* Testing: xUnit (unit + minimal integration).
+
+
+SOLUTION LAYOUT (Vertical Slice-friendly)
+
+* `src/ai-tutor-api` — ASP.NET Core host (REST + SignalR), middleware, ProblemDetails, i18n setup, controllers, minimal API.
+* `src/ai-tutor-services` — Use-cases/services, validators, **repository interfaces**, domain errors.
+* `src/ai-tutor-domain` — Domain entities/value objects/enums (no EF/HTTP).
+* `src/ai-tutor-infrastructure` — EF Core DbContext, configurations, **repository implementations**, outbox dispatcher, file storage adapter, migrations/seed.
+* `src/ai-tutor-contracts` — Public DTOs/enums/problem schema (importable by Angular).
+* `tests/*` — Unit tests for services; integration tests API.
+
+DATABASE & EF CORE (align to Postgres 17)
+
+* Use **UUID (v4)** PKs everywhere.
+* Map `metadata` columns to PostgreSQL **jsonb** (map to `JsonDocument` or equivalent).
+* Create PostgreSQL **enum types** and map .NET enums to them (Npgsql supports `HasPostgresEnum`).
+* Enforce **named foreign keys** and **named indexes** in migrations.
+* Add **partial indexes** and **CHECK constraints** via raw SQL in migrations where needed.
+* Index for paging: `(thread_id, created_at ASC, id ASC)` on `chat_messages`.
+
+APPROVED ENUMS (create Postgres enum types and .NET enums)
+
+* thread_status_enum: `active | archived | deleted`
+* message_status_enum: `sending | sent | error`
+* sender_type_enum: `user | ai`
+* folder_type_enum: `project | folder`
+* folder_status_enum: `active | archived | deleted`
+* attachment_type_enum: `document | image | other`  (exact MIME is in `files.content_type`)
+* reference_type_enum: `file | page | video | link | formula`
+* event_type_enum: `message_created | message_updated | message_deleted`
+* org_type_enum: `personal | education | household | business`  (subtype in `orgs.metadata.subtype`)
+* org_role_enum: `owner | admin | member`
+
+TABLES (fields & why—implement 1:1 in EF Core)
+
+* **orgs**: `id, name, slug(unique), type, metadata(jsonb), created_at, updated_at` — tenancy boundary & routing handle.
+* **org_members**: `(org_id, user_id) PK, role, joined_at` — many-to-many membership & roles.
+* **users**: `id, primary_org_id(FK→orgs), name, email(unique), metadata, created_at, updated_at`.
+* **folders**: `id, org_id(FK), owner_user_id(FK), parent_id(FK self), type, status, name, level(int ≥1), sort_order(numeric(12,6) default 1000), metadata, created_at, updated_at`.
+
+  * Indexes: `(org_id, owner_user_id, parent_id)`, unique `(owner_user_id, parent_id, name)`, **partial** `status='active'`.
+  * Checks: `(level=1 AND parent_id IS NULL) OR (level>1 AND parent_id IS NOT NULL)`.
+* **chat_threads**: `id, org_id(FK), user_id(FK), folder_id(FK set null), title?, status, sort_order, metadata, created_at, updated_at`.
+
+  * Indexes: `(user_id)`, `(folder_id, sort_order)`, **partial** `status='active'`.
+* **chat_messages**: `id, thread_id(FK), sender_type, sender_id(FK nullable), status default 'sent', content, metadata, created_at, updated_at`.
+
+  * Index: `(thread_id, created_at ASC, id ASC)` for history paging.
+  * Rule: `sender_id` null when `sender_type='ai'` (service-level).
+* **files**: `id, org_id(FK), owner_user_id(FK), file_name, content_type(MIME), storage_key, storage_url?, size_bytes, checksum_sha256?, pages?, metadata(jsonb), created_at`.
+
+  * Indexes: `(org_id, owner_user_id)`, `(checksum_sha256)`.
+* **attachments**: `id, message_id(FK), file_id(FK), type(attachment_type_enum), metadata(jsonb), created_at`.
+
+  * Index: `(message_id)`.
+* **references**: `id, thread_id(FK), message_id(FK nullable), type(reference_type_enum), title, url?, file_id?(FK set null), page_number?, preview_img_url?, metadata(jsonb), created_at`.
+
+  * Check: `(url IS NOT NULL) OR (file_id IS NOT NULL)`.
+  * Indexes: `(thread_id, created_at DESC)`, `(message_id)`.
+* **usage_logs**: `id, message_id(FK UNIQUE), provider, model, prompt_tokens, completion_tokens, ms_latency, cost_usd, metadata(jsonb), created_at`.
+* **message_events**: `id, message_id(FK), event_type, payload(jsonb), delivered_at?, created_at`.
+
+  * Indexes: `(message_id, created_at DESC)`, **partial** `(event_type, created_at)` where `delivered_at IS NULL`.
+
+TENANCY (must implement)
+
+* Determine active org per request (priority): `X-Org-Slug` header → user profile (`primary_org_id`) → default.
+* Validate **membership** via `org_members` (403 if not a member).
+* All repository queries **must** filter by `orgId`.
+* Keep `org_id` off public DTOs (server-only concern).
+
+REPOSITORY PATTERN (future-proof for caching/views)
+
+* Define **interfaces** in `ai-tutor-domain` for each aggregate: Folder, Thread, Message, File, Attachment, Reference, UsageLog, MessageEvent.
+* Implement them in `ai-tutor-infrastructure` using EF Core.
+* All interfaces must be inside Domain, so that every project then depends on Domain supporting clean architecture. 
+* Services/use-cases in `ai-tutor-services` depend on interfaces (not EF).
+* Add extension points: a `ICache` port (no impl now) to allow later Redis/materialized-view reads without touching controllers.
+
+DTOs / CONTRACTS (shared with Angular; no persistence fields)
+
+* Request/response DTOs for Folders, Threads, Messages, Files, Attachments, References, UsageLogs.
+* API enums mirror the public meanings (thread status, message status, etc.).
+* Validation attributes (lengths, required, enums).
+* Responses include client-safe fields (exclude `org_id`, internal metadata unless needed).
+
+REST ENDPOINTS (minimal V1) (controllers) do not use minimal API but use controllers for endpoints
+
+* **Folders**: create, rename/status, move (reparent + sort_order), get tree (3 levels).
+* **Threads**: create, list (by folder or by user), update title/status/move.
+* **Messages**: list (paged via `(created_at, id)` cursor ASC), create (user message).
+* **Files**: upload (multipart) → stored via storage adapter, list by owner, download/presign.
+* **Attachments**: list by message.
+* **References**: create (file/page/link/video/formula), list by thread (newest first).
+* **Usage Logs**: get by message (read-only).
+* All POST/PATCH enforce tenancy & DTO validation.
+
+SIGNALR + OUTBOX
+
+* SignalR hub (e.g., `/hubs/threads`); groups named `thread:{id}`; authenticate & verify org membership at connect.
+* Background **outbox dispatcher** (HostedService): poll `message_events` with `delivered_at IS NULL`, publish to corresponding group, mark delivered on success.
+* On message creation, enqueue `message_created` event row with minimal payload.
+
+PROBLEM DETAILS + I18N
+
+* Global exception handling returns **RFC 7807 ProblemDetails** with fields: `type`, `title`, `status`, `detail` (localized), `instance`, `code` (stable app code), `correlationId`, `errors` (validation map), `retryable`, `meta` (safe extras).
+* Map common cases: 400 `/validation`, 401 `/auth`, 403 `/forbidden`, 404 `/not-found`, 409 `/conflict`, 422 `/semantic`, 429 `/rate-limit`, 5xx upstream `/upstream`.
+* **Locale negotiation**: `Accept-Language` → user profile locale → org default → app default (`en`).
+* Use resource catalogs grouped by domain (`folders`, `threads`, `messages`, `common`); keys equal `code` (e.g., `FOLDER_NAME_TAKEN`, `THREAD_NOT_FOUND`), support interpolation.
+* Always include `code` in responses; client may re-localize, but server returns localized `detail`.
+* Add **correlation ID** middleware; echo as header and in ProblemDetails.
+* For SignalR, emit parallel error envelopes `{ type, title, code, detail, correlationId, meta }`.
+
+SEEDING (transactional, idempotent)
+
+* Create personal **org** (type=personal, slug from name).
+* Create **user** linked via `primary_org_id`.
+* Create **org_members** (role=owner).
+* Create a top-level **folder** (“Math”, type=project).
+* Create a **chat_thread** in that folder.
+* Add **two chat_messages** (user then AI).
+* Add **one file** (PDF placeholder) owned by user/org.
+* Add **one attachment** on the user message (type=document).
+* Add **one reference** on the thread (type=file) pointing to that file.
+* Add **one usage_log** for the AI message.
+* Add **one message_event** (`message_created`, undelivered).
+
+ACCEPTANCE CRITERIA
+
+* EF Core models, mappings, and migrations create all tables with named FKs/indexes; enum types exist in Postgres; partial indexes and CHECKs are applied (raw SQL where necessary).
+* For efcore use configuration classes and do not use entity configuration using fluent API within db context file.
+* Seed runs idempotently and creates the personal org + sample data.
+* Repository interfaces exist in `ai-tutor-domain`; EF implementations in `ai-tutor-infrastructure`; services depend only on interfaces.
+* REST endpoints enforce tenancy and return **ProblemDetails** on errors.
+* SignalR hub broadcasts `message_created` from outbox; dispatcher marks delivered.
+* DTOs exclude `org_id` and internal fields; OpenAPI describes DTOs and ProblemDetails schema.
+* Tests: unit tests for services/mappers; integration test demonstrating outbox dispatch and ProblemDetails for a conflict (e.g., duplicate folder name).
+
+NON-GOALS (defer)
+
+* RLS policies on Postgres (later).
+* Group chats (`thread_participants`).
+* RAG vector store & retrieval (external Python service later).
+* Advanced caching/materialized views (leave repository seam to add later).
+
+RATIONALE REMINDERS (for implementer)
+
+* **Tenancy vs ownership**: `org_id` scopes data; `user_id` denotes owner/creator. Enforce membership on writes; scope reads by `org_id`.
+* **Folders depth**: DB flexible (`level ≥ 1`); UI may cap at 3.
+* **Attachments vs references**: attachment = file carried by message; reference = cited resource (uploaded file/page/link/video/formula).
+* **Repository seam** enables plugging Redis or read replicas/materialized views later without changing controllers or services.
+
+---

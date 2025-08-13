@@ -1,0 +1,131 @@
+﻿AI MATHS TUTOR – DETAILED CONTEXT OVERVIEW (How the pieces fit)
+Status: Draft · Last edited: 2025-08-13
+=======================================
+
+1. Product vision and scope (V1 → V2)
+
+* Goal: an interactive AI tutor for maths that feels like a focused, syllabus-aware chat, with supporting materials and progress insights.
+* V1: real-time chat, folders/projects (3-level UI cap), file uploads, references drawer, usage logging, unified errors with i18n, light multi-tenancy (personal org per user, schools later).
+* V2+: RAG-powered answers with citations, richer analytics, group sessions, teacher dashboards.
+
+2. High-level architecture (components and roles)
+
+* Angular Web App (UI)
+  • Presents chat, folder tree, references drawer, dashboard widgets.
+  • Talks to WebAPI over REST for CRUD and to SignalR for live updates.
+  • Uses shared contracts (DTOs/enums) to stay in sync with server.
+* WebAPI (ASP.NET Core 9)
+  • Delivery layer (REST + SignalR), auth/tenancy, validation, ProblemDetails+i18n.
+  • Application layer (use-cases/services) depends on repository interfaces.
+  • Infrastructure layer (EF Core/Npgsql) implements repositories, DB seeding, outbox dispatcher.
+* PostgreSQL 17
+  • System of record for users/orgs, folders, threads, messages, files, attachments, references, usage logs, message events.
+  • Designed for growth: org-scoped rows, jsonb metadata, named FKs, critical indexes, partial indexes for hot paths.
+* Object Storage (cloud bucket)
+  • Holds uploaded files; DB stores registry row, MIME type, size, checksum, and storage key/URL.
+* RAG Service (Python, FastAPI) – future
+  • Owns ingestion, chunking, embeddings, hybrid retrieval.
+  • Exposes /rag/query (streaming) and /admin/ingest. No vectors in the app DB.
+* Observability and ops (cross-cutting)
+  • Centralized logging with correlation IDs, metrics for latency/tokens, dashboards per org.
+
+3. End-to-end flows (typical user journeys)
+
+A. Start a new chat and message
+
+* Angular requests “create thread” under a selected folder.
+* WebAPI validates tenancy (org member), creates chat\_thread, returns DTO.
+* User sends a message; WebAPI writes chat\_message (status=sending→sent), enqueues message\_event (message\_created), returns message DTO.
+* Outbox dispatcher publishes event via SignalR to thread subscribers; UI appends the message immediately and shows timestamps.
+
+B. Upload a file and cite it
+
+* Angular uploads a file; WebAPI streams to object storage, creates files row (content\_type, size, checksum).
+* User attaches the file to a message (attachments row) and/or adds it as a reference in the drawer (references row with type=file or type=page).
+* UI shows the file under the bubble and in the references panel; download opens via storage URL.
+
+C. List history efficiently
+
+* Angular requests messages with a cursor; WebAPI reads by (thread\_id, created\_at ASC, id ASC) using the composite index for stable paging.
+* The list renders incrementally; timestamps displayed uniformly.
+
+D. Error handling and localization
+
+* Any validation or domain error is returned as RFC 7807 ProblemDetails with localized detail, stable code, and correlationId.
+* Angular can display the localized text immediately and still rely on the stable code for client-side logic or translations if needed.
+
+E. Usage metrics
+
+* When AI replies (now or later via RAG), WebAPI records usage\_logs for tokens/latency/cost and exposes read-only usage for dashboards and quotas.
+
+4. Data model and tenancy (why it’s shaped this way)
+
+* Org scoping
+  • Every top-level table (folders, files, chat\_threads) has org\_id (NOT NULL). This enables isolation, per-org quotas/billing, future RLS, and simple “list my org’s data” queries.
+  • Users belong to orgs via org\_members. Each user has a primary\_org\_id (personal org by default).
+* Ownership and placement
+  • chat\_threads also carry user\_id (owner) and folder\_id (placement in the sidebar tree). This keeps “My chats” and drag-drop moves efficient.
+* Attachments vs References
+  • Attachment = “file carried by a message” (message-scoped).
+  • Reference = “resource cited” (thread- or message-scoped) and can point to an uploaded file, a specific page, an external link/video, or a formula snippet.
+* Growth levers
+  • jsonb metadata for incremental flags (e.g., ocr\_status, model used, evaluation scores).
+  • Partial indexes and named constraints for predictable performance and maintenance.
+  • No deep coupling to RAG: the app DB is a clean source of truth for files and citations; retrieval indexes live elsewhere.
+
+5. UI responsibilities and contract boundaries
+
+* Angular consumes only DTOs (never DB shapes). That keeps server freedom to optimize persistence (views, caches) without breaking the client.
+* Shared contracts package supplies request/response DTOs, API enums, and ProblemDetails schema; localization keys mirror server error codes.
+* SignalR delivers real-time events (message\_created, etc.) with minimal payloads; the client reconciles state via existing DTOs.
+
+6. WebAPI responsibilities and cross-cutting concerns
+
+* Tenancy guard
+  • Resolves active org from header slug or user profile, ensures membership, injects orgId/userId into use-cases, scopes all repo queries.
+* ProblemDetails + i18n
+  • Global exception filter standardizes error responses, localizes detail based on Accept-Language → user → org → default.
+  • Stable codes (e.g., FOLDER\_NAME\_TAKEN) allow uniform UX and analytics.
+* Repository pattern
+  • Application depends on repository interfaces; EF Core implementations can later be wrapped with caches or swapped to materialized views for read heavy endpoints.
+* SignalR outbox
+  • Durable message\_events table decouples writes from real-time delivery; dispatcher marks delivered to support retries and backpressure.
+
+7. RAG integration (how it will slot in)
+
+* Ingestion: RAG service pulls from object storage (using files.storage\_key) and creates its own retrieval indexes (dense + keyword).
+* Query: WebAPI’s chat pipeline can call RAG under a feature flag. It streams tokens back to Angular through SignalR (or directly from RAG if you choose), while saving citations as references rows for explainability.
+* Telemetry: usage\_logs records provider/model/tokens/latency; ProblemDetails type=/upstream handles sanitized provider failures.
+
+8. Performance and scaling posture (V1 pragmatic)
+
+* Read/write patterns aligned with indexes (thread paging, folder ordering).
+* DB-first consistency with simple eventual consistency only for real-time fan-out.
+* Caching hooks at repository layer; add Redis or read replicas when traffic grows.
+* Background jobs limited to outbox dispatch; more jobs (e.g., PDF OCR, thumbnailing) can be added behind the same pattern.
+
+9. Security, privacy, and compliance basics
+
+* Org isolation ensures no cross-tenant reads by design; later RLS can enforce at DB level.
+* Files in object storage use presigned URLs or gated download endpoints; checksums prevent duplicate uploads.
+* PII minimized in logs; ProblemDetails never includes stack traces; correlationId added for traceability.
+* I18n catalogs avoid embedding sensitive text; any provider-specific details live in sanitized meta fields.
+
+10. Deployment and environments (at a glance)
+
+* WebAPI and Angular deploy independently; contracts package versions gate compatibility.
+* DB migrations flow with CI; seed runs in non-prod only (or guarded in prod).
+* RAG service deploys separately; feature flag controls whether chat calls RAG.
+
+11. Evolution path (V2+)
+
+* Group chats: add thread\_participants; keep org\_id and user ownership semantics.
+* RAG link tables (optional): source\_documents/source\_pages to bind citations to page-level entities without touching existing references.
+* Analytics: materialized views for session summaries and topic progress; repositories can point reads to these views transparently.
+* Quotas/billing: per-org aggregates from usage\_logs; rate limits and billing reports per period.
+
+Bottom line
+
+* The UI stays simple and responsive, backed by a WebAPI that enforces tenancy and returns uniform, localized errors.
+* The data model is deliberately boring and index-friendly, with room to add caching/views later.
+* RAG is cleanly separated: when turned on, it enriches answers and populates references/usage without reshaping core tables.
