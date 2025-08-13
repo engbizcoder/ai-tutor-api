@@ -1,11 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ai-tutor-api", "ai-tutor-api\ai-tutor-api.csproj", "{7A5F732A-24A2-4FA2-9E34-CFE3F130D6AD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4A67499B-770E-4DB8-BA86-BFE13B4C33F3}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ai-tutor-domain", "ai-tutor-domain\ai-tutor-domain.csproj", "{1C322124-3664-4076-B5F2-4F0705248AAC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ai-tutor-services", "ai-tutor-services\ai-tutor-services.csproj", "{FAC95840-FEEA-4C67-9ED4-0D9DF4638F86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ai-tutor-infrastructure", "ai-tutor-infrastructure\ai-tutor-infrastructure.csproj", "{8A551444-2659-44E1-BF46-A055237525DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ai-tutor-contracts", "ai-tutor-contracts\ai-tutor-contracts.csproj", "{B334B199-87EF-4EDC-AC2C-CCC59B6D6D09}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,5 +26,21 @@ Global
 		{7A5F732A-24A2-4FA2-9E34-CFE3F130D6AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A5F732A-24A2-4FA2-9E34-CFE3F130D6AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A5F732A-24A2-4FA2-9E34-CFE3F130D6AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C322124-3664-4076-B5F2-4F0705248AAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C322124-3664-4076-B5F2-4F0705248AAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C322124-3664-4076-B5F2-4F0705248AAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C322124-3664-4076-B5F2-4F0705248AAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAC95840-FEEA-4C67-9ED4-0D9DF4638F86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAC95840-FEEA-4C67-9ED4-0D9DF4638F86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAC95840-FEEA-4C67-9ED4-0D9DF4638F86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAC95840-FEEA-4C67-9ED4-0D9DF4638F86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A551444-2659-44E1-BF46-A055237525DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A551444-2659-44E1-BF46-A055237525DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A551444-2659-44E1-BF46-A055237525DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A551444-2659-44E1-BF46-A055237525DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B334B199-87EF-4EDC-AC2C-CCC59B6D6D09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B334B199-87EF-4EDC-AC2C-CCC59B6D6D09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B334B199-87EF-4EDC-AC2C-CCC59B6D6D09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B334B199-87EF-4EDC-AC2C-CCC59B6D6D09}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
