@@ -1,0 +1,184 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+# ---- .NET build outputs ----
+bin/
+obj/
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Ll]og/
+[Ll]ogs/
+*.VisualState.xml
+TestResult*/
+[Tt]est[Rr]esult*/
+[Bb]enchmarkDotNet.Artifacts/
+*.pidb
+*.svclog
+*.scc
+
+# VS/.NET caches
+.vs/
+.vscode/
+.ionide/
+.idea/
+.resharper/
+_ReSharper*/
+*.DotSettings.user
+*.user
+*.userosscache
+*.suo
+*.rsuser
+*.VC.db
+*.VC.VC.opendb
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+artifacts/
+project.lock.json
+project.fragment.lock.json
+**/packages/*
+!**/packages/build/
+!**/packages/repositories.config
+
+# Rider
+.idea/
+*.iml
+riderModule.iml
+/.idea/.idea.*
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Visual Studio
+*.psess
+*.vsp
+*.vspx
+*.psess
+*.psess01
+*.vspf
+.vspscc
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Entity Framework
+Migrations/**/Snapshot.cs
+
+# Coverage
+coverage*
+*.coverage
+*.coveragexml
+.coverlet/**
+TestResults/
+.nyc_output/
+
+# Logs
+*.log
+logs/
+
+# Docker
+.docker/
+**/.dockerignore.local
+docker-compose.override.yml
+docker-compose.*.yml
+
+# Publish artifacts
+pub/
+publish/
+app.publish/
+
+# Temporary files
+~$*
+*~
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swm
+*.orig
+*.rej
+
+# IDE specific
+*.code-workspace
+.history/
+.ionide/
+
+# OS generated
+.DS_Store
+Thumbs.db
+ehthumbs.db
+$RECYCLE.BIN/
+
+# Certificates/Secrets (ensure stored securely elsewhere)
+*.pfx
+*.p12
+*.snk
+secrets.json
+appsettings.*.local.json
+appsettings.Development.json
+
+# Node (if any frontend present)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python (if any tooling/scripts)
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# JetBrains cache
+/_ReSharper.Caches/
+
+# Rider/IntelliJ local HTTP requests
+.idea/httpRequests/
+
+# Local tooling
+.env
+.env.*
+.tool-versions
+.dotnet-tools.json
+
+# Static analysis
+.sonarqube/
+.scannerwork/
+
+# SQLite/Local DB
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+*.ndf
+
+# Azure
+PublishProfiles/
+ServiceDependencies/
+ServiceFabricBackup/
+
+# TFS
+$tf/
+
+# Backup and reports
+*.Report.xml
+*.Report.html
+
+# Package restore logs
+nuget.g*.log
