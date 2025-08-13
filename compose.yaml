@@ -1,0 +1,6 @@
+﻿services:
+  ai-tutor-api:
+    image: ai-tutor-api
+    build:
+      context: .
+      dockerfile: ai-tutor-api/Dockerfile
