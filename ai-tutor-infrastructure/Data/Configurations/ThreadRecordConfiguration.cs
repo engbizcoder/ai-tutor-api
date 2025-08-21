@@ -36,6 +36,6 @@ public sealed class ThreadRecordConfiguration : IEntityTypeConfiguration<ThreadR
             .WithMany()
             .HasForeignKey(x => x.FolderId)
             .HasConstraintName("fk_threads_folder")
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

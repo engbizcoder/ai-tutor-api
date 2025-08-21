@@ -1,3 +1,5 @@
+using Ai.Tutor.Infrastructure.Data.Interfaces;
+
 namespace Ai.Tutor.Infrastructure.Data;
 
 using Ai.Tutor.Domain.Enums;

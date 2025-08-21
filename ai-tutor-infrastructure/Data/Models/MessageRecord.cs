@@ -1,6 +1,7 @@
 namespace Ai.Tutor.Infrastructure.Data.Models;
 
 using Ai.Tutor.Domain.Enums;
+using Ai.Tutor.Infrastructure.Data.Interfaces;
 
 public sealed class MessageRecord : ICreatedAtEntity, IUpdatedAtEntity
 {
