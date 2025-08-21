@@ -3,6 +3,8 @@ using Ai.Tutor.Api.Seeding;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
 using Ai.Tutor.Infrastructure.Repositories;
+using Ai.Tutor.Services.Features.Folders;
+using Ai.Tutor.Services.Mediation;
 using Ai.Tutor.Services.Services;
 using FluentValidation.AspNetCore;
 using Hellang.Middleware.ProblemDetails;
@@ -52,6 +54,12 @@ builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 builder.Services.AddScoped<IOrgDeletionService, OrgDeletionService>();
 
 builder.Services.AddScoped<IUserDeletionService, UserDeletionService>();
+
+// Custom Mediator
+builder.Services.AddScoped<IMediator, Mediator>();
+
+// Handlers (non-generic/void-like)
+builder.Services.AddScoped<IRequestHandler<DeleteFolderRequest>, DeleteFolderHandler>();
 
 // Seeding
 builder.Services.AddHostedService<StartupSeeder>();
