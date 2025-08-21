@@ -1,5 +1,6 @@
 using System.Globalization;
 using Ai.Tutor.Api.Seeding;
+using Ai.Tutor.Api.Services;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
 using Ai.Tutor.Infrastructure.Repositories;
@@ -7,11 +8,17 @@ using Ai.Tutor.Services.Features.Folders;
 using Ai.Tutor.Services.Mediation;
 using Ai.Tutor.Services.Services;
 using FluentValidation.AspNetCore;
-using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Logging: Serilog
+builder.Host.UseSerilog(
+    (ctx, services, lc) =>
+    lc.ReadFrom.Configuration(ctx.Configuration)
+      .ReadFrom.Services(services));
 
 // Controllers (no minimal APIs)
 builder.Services.AddControllers();
@@ -25,9 +32,8 @@ builder.Services.AddLocalization();
 // FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
 
-// ProblemDetails (Hellang)
-builder.Services.AddProblemDetails(
-    options => { options.IncludeExceptionDetails = (ctx, ex) => builder.Environment.IsDevelopment(); });
+// ProblemDetails (Hellang) via extension
+builder.Services.AddApiProblemDetails(builder.Environment);
 
 // DbContext (Postgres)
 var connString = builder.Configuration.GetConnectionString("Default");
@@ -58,8 +64,8 @@ builder.Services.AddScoped<IUserDeletionService, UserDeletionService>();
 // Custom Mediator
 builder.Services.AddScoped<IMediator, Mediator>();
 
-// Handlers (non-generic/void-like)
-builder.Services.AddScoped<IRequestHandler<DeleteFolderRequest>, DeleteFolderHandler>();
+// Register handlers by assembly scanning (ai-tutor-services)
+builder.Services.AddMediatorHandlersFromAssembly(typeof(DeleteFolderHandler).Assembly);
 
 // Seeding
 builder.Services.AddHostedService<StartupSeeder>();
@@ -69,23 +75,12 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Middleware: ProblemDetails
-app.UseProblemDetails();
+// Middleware ordering: CorrelationId -> ExceptionLogging -> ProblemDetails
+app.UseCorrelationId();
 
-// Correlation ID middleware (simple)
-app.Use(
-    async (context, next) =>
-    {
-        const string header = "X-Correlation-Id";
-        if (!context.Request.Headers.TryGetValue(header, out var id) || string.IsNullOrWhiteSpace(id))
-        {
-            id = Guid.NewGuid().ToString();
-            context.Request.Headers[header] = id;
-        }
+app.UseExceptionLogging();
 
-        context.Response.Headers[header] = id;
-        await next();
-    });
+app.UseApiProblemDetails();
 
 // Localization
 var supportedCultures = new[] { new CultureInfo("en") };
