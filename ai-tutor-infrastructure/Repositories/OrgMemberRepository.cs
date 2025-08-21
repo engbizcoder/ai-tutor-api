@@ -1,10 +1,10 @@
+namespace Ai.Tutor.Infrastructure.Repositories;
+
 using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
 using Ai.Tutor.Infrastructure.Data.Models;
 using Microsoft.EntityFrameworkCore;
-
-namespace Ai.Tutor.Infrastructure.Repositories;
 
 public sealed class OrgMemberRepository(AiTutorDbContext db) : IOrgMemberRepository
 {
@@ -18,6 +18,16 @@ public sealed class OrgMemberRepository(AiTutorDbContext db) : IOrgMemberReposit
         var rec = ToRecord(member);
         await db.OrgMembers.AddAsync(rec, ct);
         await db.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteByOrgAsync(Guid orgId, CancellationToken ct = default)
+    {
+        await db.OrgMembers.Where(m => m.OrgId == orgId).ExecuteDeleteAsync(ct);
+    }
+
+    public async Task DeleteByUserAsync(Guid userId, CancellationToken ct = default)
+    {
+        await db.OrgMembers.Where(m => m.UserId == userId).ExecuteDeleteAsync(ct);
     }
 
     private static OrgMemberRecord ToRecord(OrgMember x) => new()

@@ -24,8 +24,8 @@ public sealed class MessageRecordConfiguration : IEntityTypeConfiguration<Messag
 
         builder.HasIndex(x => new { x.ThreadId, x.CreatedAt, x.Id }).HasDatabaseName("ix_messages_thread_created_id");
 
-        builder.HasOne<ThreadRecord>()
-            .WithMany()
+        builder.HasOne(m => m.Thread)
+            .WithMany(t => t.Messages)
             .HasForeignKey(x => x.ThreadId)
             .HasConstraintName("fk_messages_thread")
             .OnDelete(DeleteBehavior.Cascade);

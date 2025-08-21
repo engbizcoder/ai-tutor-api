@@ -1,10 +1,10 @@
+namespace Ai.Tutor.Infrastructure.Repositories;
+
 using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
 using Ai.Tutor.Infrastructure.Data.Models;
 using Microsoft.EntityFrameworkCore;
-
-namespace Ai.Tutor.Infrastructure.Repositories;
 
 public sealed class UserRepository(AiTutorDbContext db) : IUserRepository
 {
@@ -20,6 +20,11 @@ public sealed class UserRepository(AiTutorDbContext db) : IUserRepository
         await db.Users.AddAsync(rec, ct);
         await db.SaveChangesAsync(ct);
         return ToDomain(rec);
+    }
+
+    public async Task DeleteAsync(Guid userId, CancellationToken ct = default)
+    {
+        await db.Users.Where(u => u.Id == userId).ExecuteDeleteAsync(ct);
     }
 
     private static User ToDomain(UserRecord x) => new()

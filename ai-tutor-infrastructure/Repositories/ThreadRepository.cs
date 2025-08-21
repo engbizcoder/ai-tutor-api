@@ -1,10 +1,10 @@
+namespace Ai.Tutor.Infrastructure.Repositories;
+
 using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
 using Ai.Tutor.Infrastructure.Data.Models;
 using Microsoft.EntityFrameworkCore;
-
-namespace Ai.Tutor.Infrastructure.Repositories;
 
 public sealed class ThreadRepository(AiTutorDbContext db)
     : IThreadRepository
@@ -20,7 +20,7 @@ public sealed class ThreadRepository(AiTutorDbContext db)
 
     // Overload required by IThreadRepository (no limit parameter)
     public Task<List<ChatThread>> ListByFolderAsync(Guid orgId, Guid? folderId, CancellationToken ct = default)
-        => ListByFolderAsync(orgId, folderId, 50, ct);
+        => this.ListByFolderAsync(orgId, folderId, 50, ct);
 
     public async Task<List<ChatThread>> ListByFolderAsync(Guid orgId, Guid? folderId, int limit, CancellationToken ct = default)
     {
@@ -51,7 +51,7 @@ public sealed class ThreadRepository(AiTutorDbContext db)
 
     // Overload required by IThreadRepository (no limit parameter)
     public Task<List<ChatThread>> ListByUserAsync(Guid orgId, Guid userId, CancellationToken ct = default)
-        => ListByUserAsync(orgId, userId, 50, ct);
+        => this.ListByUserAsync(orgId, userId, 50, ct);
 
     public async Task<List<ChatThread>> ListByUserAsync(Guid orgId, Guid userId, int limit, CancellationToken ct = default)
     {
@@ -85,6 +85,58 @@ public sealed class ThreadRepository(AiTutorDbContext db)
         var rec = ToRecord(thread);
         db.ChatThreads.Update(rec);
         await db.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteAsync(Guid threadId, CancellationToken ct = default)
+    {
+        await db.ChatThreads.Where(t => t.Id == threadId).ExecuteDeleteAsync(ct);
+    }
+
+    public async Task<List<Guid>> ListIdsByOrgAsync(Guid orgId, CancellationToken ct = default)
+    {
+        return await db.ChatThreads
+            .AsNoTracking()
+            .Where(t => t.OrgId == orgId)
+            .Select(t => t.Id)
+            .ToListAsync(ct);
+    }
+
+    public async Task<List<Guid>> ListIdsByFolderAsync(Guid orgId, Guid? folderId, CancellationToken ct = default)
+    {
+        var query = db.ChatThreads.AsNoTracking().Where(t => t.OrgId == orgId);
+        if (folderId.HasValue)
+        {
+            query = query.Where(t => t.FolderId == folderId);
+        }
+        else
+        {
+            query = query.Where(t => t.FolderId == null);
+        }
+
+        return await query.Select(t => t.Id).ToListAsync(ct);
+    }
+
+    public async Task<List<Guid>> ListIdsByUserAsync(Guid userId, CancellationToken ct = default)
+    {
+        return await db.ChatThreads
+            .AsNoTracking()
+            .Where(t => t.UserId == userId)
+            .Select(t => t.Id)
+            .ToListAsync(ct);
+    }
+
+    public async Task DeleteByOrgAsync(Guid orgId, CancellationToken ct = default)
+    {
+        await db.ChatThreads
+            .Where(t => t.OrgId == orgId)
+            .ExecuteDeleteAsync(ct);
+    }
+
+    public async Task DeleteByUserAsync(Guid userId, CancellationToken ct = default)
+    {
+        await db.ChatThreads
+            .Where(t => t.UserId == userId)
+            .ExecuteDeleteAsync(ct);
     }
 
     private static ChatThread ToDomain(ThreadRecord x) => new()

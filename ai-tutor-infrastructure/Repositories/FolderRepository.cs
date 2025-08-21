@@ -1,10 +1,10 @@
+namespace Ai.Tutor.Infrastructure.Repositories;
+
 using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
 using Ai.Tutor.Infrastructure.Data.Models;
 using Microsoft.EntityFrameworkCore;
-
-namespace Ai.Tutor.Infrastructure.Repositories;
 
 public sealed class FolderRepository(AiTutorDbContext db)
     : IFolderRepository
@@ -55,6 +55,16 @@ public sealed class FolderRepository(AiTutorDbContext db)
     public Task<bool> ExistsWithNameAsync(Guid ownerUserId, Guid? parentId, string name, CancellationToken ct = default)
     {
         return db.Folders.AnyAsync(x => x.OwnerUserId == ownerUserId && x.ParentId == parentId && x.Name == name, ct);
+    }
+
+    public async Task DeleteByOrgAsync(Guid orgId, CancellationToken ct = default)
+    {
+        await db.Folders.Where(f => f.OrgId == orgId).ExecuteDeleteAsync(ct);
+    }
+
+    public async Task DeleteAsync(Guid folderId, CancellationToken ct = default)
+    {
+        await db.Folders.Where(f => f.Id == folderId).ExecuteDeleteAsync(ct);
     }
 
     private static Folder ToDomain(FolderRecord x) => new()

@@ -1,9 +1,10 @@
-﻿// <copyright file="ThreadRecord.cs" company="PlaceholderCompany">
+// <copyright file="ThreadRecord.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 namespace Ai.Tutor.Infrastructure.Data.Models;
 
+using System.Collections.Generic;
 using Ai.Tutor.Domain.Enums;
 using Ai.Tutor.Infrastructure.Data.Interfaces;
 
@@ -28,4 +29,6 @@ public sealed class ThreadRecord : ICreatedAtEntity, IUpdatedAtEntity
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    public ICollection<MessageRecord> Messages { get; set; } = [];
 }

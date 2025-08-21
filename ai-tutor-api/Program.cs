@@ -3,6 +3,7 @@ using Ai.Tutor.Api.Seeding;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
 using Ai.Tutor.Infrastructure.Repositories;
+using Ai.Tutor.Services.Services;
 using FluentValidation.AspNetCore;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Localization;
@@ -28,15 +29,29 @@ builder.Services.AddProblemDetails(
 
 // DbContext (Postgres)
 var connString = builder.Configuration.GetConnectionString("Default");
+
 builder.Services.AddDbContext<AiTutorDbContext>(opt => opt.UseNpgsql(connString));
 
 // Repositories (DI)
 builder.Services.AddScoped<IOrgRepository, OrgRepository>();
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 builder.Services.AddScoped<IOrgMemberRepository, OrgMemberRepository>();
+
 builder.Services.AddScoped<IFolderRepository, FolderRepository>();
+
 builder.Services.AddScoped<IThreadRepository, ThreadRepository>();
+
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+
+// Unit of Work
+builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+
+// Application services
+builder.Services.AddScoped<IOrgDeletionService, OrgDeletionService>();
+
+builder.Services.AddScoped<IUserDeletionService, UserDeletionService>();
 
 // Seeding
 builder.Services.AddHostedService<StartupSeeder>();
@@ -66,6 +81,7 @@ app.Use(
 
 // Localization
 var supportedCultures = new[] { new CultureInfo("en") };
+
 app.UseRequestLocalization(
     new RequestLocalizationOptions
     {
@@ -83,6 +99,7 @@ app.UseHttpsRedirection();
 
 // Map controllers and SignalR hub placeholder
 app.MapControllers();
+
 app.MapHub<Microsoft.AspNetCore.SignalR.Hub>("/hubs/threads");
 
 app.Run();

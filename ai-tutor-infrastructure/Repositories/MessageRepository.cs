@@ -67,13 +67,25 @@ public sealed class MessageRepository(AiTutorDbContext db)
         return ToDomain(rec);
     }
 
+    public async Task DeleteByThreadIdsAsync(IReadOnlyCollection<Guid> threadIds, CancellationToken ct = default)
+    {
+        if (threadIds.Count == 0)
+        {
+            return;
+        }
+
+        await db.ChatMessages
+            .Where(m => threadIds.Contains(m.ThreadId))
+            .ExecuteDeleteAsync(ct);
+    }
+
     private static string EncodeCursor(DateTime createdAt, Guid id)
     {
         var payload = $"{createdAt.Ticks}:{id}";
         return Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
     }
 
-    private static (DateTime? createdAt, Guid? id) TryDecodeCursor(string? cursor)
+    private static (DateTime? CreatedAt, Guid? Id) TryDecodeCursor(string? cursor)
     {
         if (string.IsNullOrWhiteSpace(cursor))
         {

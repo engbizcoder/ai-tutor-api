@@ -22,6 +22,11 @@ public sealed class OrgRepository(AiTutorDbContext db) : IOrgRepository
         return ToDomain(rec);
     }
 
+    public async Task DeleteAsync(Guid orgId, CancellationToken ct = default)
+    {
+        await db.Orgs.Where(o => o.Id == orgId).ExecuteDeleteAsync(ct);
+    }
+
     private static Org ToDomain(OrgRecord x) => new()
     {
         Id = x.Id,

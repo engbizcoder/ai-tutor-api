@@ -1,4 +1,4 @@
-﻿// <copyright file="ThreadRecordConfiguration.cs" company="PlaceholderCompany">
+// <copyright file="ThreadRecordConfiguration.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
@@ -31,7 +31,19 @@ public sealed class ThreadRecordConfiguration : IEntityTypeConfiguration<ThreadR
         builder.HasIndex(x => new { x.OrgId, x.FolderId, x.SortOrder, x.Id }).HasDatabaseName("ix_threads_org_folder_sort_id");
         builder.HasIndex(x => new { x.UserId, x.SortOrder, x.Id }).HasDatabaseName("ix_threads_user_sort_id");
 
-        // Foreign keys (assuming orgs/users/folders tables exist)
+        // Foreign keys
+        builder.HasOne<OrgRecord>()
+            .WithMany()
+            .HasForeignKey(x => x.OrgId)
+            .HasConstraintName("fk_threads_org")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<UserRecord>()
+            .WithMany()
+            .HasForeignKey(x => x.UserId)
+            .HasConstraintName("fk_threads_user")
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasOne<FolderRecord>()
             .WithMany()
             .HasForeignKey(x => x.FolderId)
