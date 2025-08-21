@@ -1,5 +1,8 @@
 using System.Globalization;
+using Ai.Tutor.Api.Seeding;
+using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
+using Ai.Tutor.Infrastructure.Repositories;
 using FluentValidation.AspNetCore;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Localization;
@@ -20,15 +23,23 @@ builder.Services.AddLocalization();
 builder.Services.AddFluentValidationAutoValidation();
 
 // ProblemDetails (Hellang)
-builder.Services.AddProblemDetails(options =>
-{
-    options.IncludeExceptionDetails = (ctx, ex) => builder.Environment.IsDevelopment();
-});
+builder.Services.AddProblemDetails(
+    options => { options.IncludeExceptionDetails = (ctx, ex) => builder.Environment.IsDevelopment(); });
 
 // DbContext (Postgres)
 var connString = builder.Configuration.GetConnectionString("Default");
-builder.Services.AddDbContext<AiTutorDbContext>(opt =>
-    opt.UseNpgsql(connString));
+builder.Services.AddDbContext<AiTutorDbContext>(opt => opt.UseNpgsql(connString));
+
+// Repositories (DI)
+builder.Services.AddScoped<IOrgRepository, OrgRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IOrgMemberRepository, OrgMemberRepository>();
+builder.Services.AddScoped<IFolderRepository, FolderRepository>();
+builder.Services.AddScoped<IThreadRepository, ThreadRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+
+// Seeding
+builder.Services.AddHostedService<StartupSeeder>();
 
 // OpenAPI for DTOs/problem schema
 builder.Services.AddOpenApi();
@@ -39,27 +50,29 @@ var app = builder.Build();
 app.UseProblemDetails();
 
 // Correlation ID middleware (simple)
-app.Use(async (context, next) =>
-{
-    const string header = "X-Correlation-Id";
-    if (!context.Request.Headers.TryGetValue(header, out var id) || string.IsNullOrWhiteSpace(id))
+app.Use(
+    async (context, next) =>
     {
-        id = Guid.NewGuid().ToString();
-        context.Request.Headers[header] = id;
-    }
+        const string header = "X-Correlation-Id";
+        if (!context.Request.Headers.TryGetValue(header, out var id) || string.IsNullOrWhiteSpace(id))
+        {
+            id = Guid.NewGuid().ToString();
+            context.Request.Headers[header] = id;
+        }
 
-    context.Response.Headers[header] = id;
-    await next();
-});
+        context.Response.Headers[header] = id;
+        await next();
+    });
 
 // Localization
 var supportedCultures = new[] { new CultureInfo("en") };
-app.UseRequestLocalization(new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture("en"),
-    SupportedCultures = supportedCultures,
-    SupportedUICultures = supportedCultures,
-});
+app.UseRequestLocalization(
+    new RequestLocalizationOptions
+    {
+        DefaultRequestCulture = new RequestCulture("en"),
+        SupportedCultures = supportedCultures,
+        SupportedUICultures = supportedCultures,
+    });
 
 if (app.Environment.IsDevelopment())
 {
