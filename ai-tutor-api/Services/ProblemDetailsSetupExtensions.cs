@@ -6,9 +6,22 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 public static class ProblemDetailsSetupExtensions
 {
+    private static readonly Action<ILogger, int, string?, string?, string?, Exception?> Problem4XxLogged =
+        LoggerMessage.Define<int, string?, string?, string?>(
+            LogLevel.Warning,
+            new EventId(3001, nameof(Problem4XxLogged)),
+            "ProblemDetails 4xx. Status={Status}, Title={Title}, Path={Path}, CorrelationId={CorrelationId}");
+
+    private static readonly Action<ILogger, int, string?, string?, string?, Exception?> Problem5XxLogged =
+        LoggerMessage.Define<int, string?, string?, string?>(
+            LogLevel.Error,
+            new EventId(3002, nameof(Problem5XxLogged)),
+            "ProblemDetails 5xx. Status={Status}, Title={Title}, Path={Path}, CorrelationId={CorrelationId}");
+
     public static IServiceCollection AddApiProblemDetails(this IServiceCollection services, IHostEnvironment env)
     {
         services.AddProblemDetails(
@@ -24,6 +37,29 @@ public static class ProblemDetailsSetupExtensions
 
             // Fallback
             options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
+
+            // Centralized logging when ProblemDetails is about to be written
+            options.OnBeforeWriteDetails = (ctx, details) =>
+            {
+                var factory = ctx.RequestServices.GetRequiredService<ILoggerFactory>();
+                var logger = factory.CreateLogger("ProblemDetails");
+
+                var status = details.Status ?? StatusCodes.Status500InternalServerError;
+                var title = details.Title;
+                var path = ctx.Request.Path.HasValue ? ctx.Request.Path.Value : string.Empty;
+                var correlationId = ctx.Response.Headers.TryGetValue(Middlewares.CorrelationIdMiddleware.HeaderName, out var id)
+                    ? id.ToString()
+                    : ctx.TraceIdentifier;
+
+                if (status >= 500)
+                {
+                    Problem5XxLogged(logger, status, title, path, correlationId, null);
+                }
+                else
+                {
+                    Problem4XxLogged(logger, status, title, path, correlationId, null);
+                }
+            };
         });
 
         return services;

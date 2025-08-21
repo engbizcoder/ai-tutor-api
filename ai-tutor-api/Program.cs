@@ -75,10 +75,8 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Middleware ordering: CorrelationId -> ExceptionLogging -> ProblemDetails
+// Middleware ordering: CorrelationId -> ProblemDetails
 app.UseCorrelationId();
-
-app.UseExceptionLogging();
 
 app.UseApiProblemDetails();
 
