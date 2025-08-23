@@ -41,25 +41,13 @@ var connString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<AiTutorDbContext>(opt => opt.UseNpgsql(connString));
 
 // Repositories (DI)
-builder.Services.AddScoped<IOrgRepository, OrgRepository>();
-
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-builder.Services.AddScoped<IOrgMemberRepository, OrgMemberRepository>();
-
-builder.Services.AddScoped<IFolderRepository, FolderRepository>();
-
-builder.Services.AddScoped<IThreadRepository, ThreadRepository>();
-
-builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddRepositories();
 
 // Unit of Work
 builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 
 // Application services
-builder.Services.AddScoped<IOrgDeletionService, OrgDeletionService>();
-
-builder.Services.AddScoped<IUserDeletionService, UserDeletionService>();
+builder.Services.AddApplicationServices();
 
 // Custom Mediator
 builder.Services.AddScoped<IMediator, Mediator>();
