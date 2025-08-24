@@ -46,6 +46,13 @@ public sealed class DeleteFolderHandler(
     {
         DeletingFolder(logger, request.FolderId, request.OrgId, null);
 
+        // Ensure folder exists and belongs to org; if not, signal 404 via ProblemDetails mapping
+        var existing = await folders.GetAsync(request.FolderId, request.OrgId, ct);
+        if (existing is null)
+        {
+            throw new KeyNotFoundException($"Folder {request.FolderId} not found in org {request.OrgId}.");
+        }
+
         // For now, only immediate folder level; nested hierarchy support can be added later.
         var threadIds = await threads.ListIdsByFolderAsync(request.OrgId, request.FolderId, ct);
         FoundThreads(logger, threadIds.Count, request.FolderId, null);

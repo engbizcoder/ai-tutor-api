@@ -4,40 +4,40 @@ public enum ThreadStatus
 {
     Active,
     Archived,
-    Deleted
+    Deleted,
 }
 
 public enum MessageStatus
 {
     Sending,
     Sent,
-    Error
+    Error,
 }
 
 public enum SenderType
 {
     User,
-    Ai
+    Ai,
 }
 
 public enum FolderType
 {
     Project,
-    Folder
+    Folder,
 }
 
 public enum FolderStatus
 {
     Active,
     Archived,
-    Deleted
+    Deleted,
 }
 
 public enum AttachmentType
 {
     Document,
     Image,
-    Other
+    Other,
 }
 
 public enum ReferenceType
@@ -46,14 +46,14 @@ public enum ReferenceType
     Page,
     Video,
     Link,
-    Formula
+    Formula,
 }
 
 public enum EventType
 {
     MessageCreated,
     MessageUpdated,
-    MessageDeleted
+    MessageDeleted,
 }
 
 public enum OrgType
@@ -61,12 +61,12 @@ public enum OrgType
     Personal,
     Education,
     Household,
-    Business
+    Business,
 }
 
 public enum OrgRole
 {
     Owner,
     Admin,
-    Member
+    Member,
 }

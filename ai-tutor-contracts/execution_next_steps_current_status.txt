@@ -1,0 +1,64 @@
+---
+EXECUTION STATUS (as of current commit)
+
+COMPLETED
+
+1) Error handling & middleware
+- Hellang ProblemDetails integrated via `ai-tutor-api/Services/ProblemDetailsSetupExtensions.cs` with logging hooks.
+- Added ProblemDetails extensions: code, retryable, correlationId, instance.
+- Removed obsolete exception logging middleware.
+
+2) DI organization
+- Repositories registered via `AddRepositories()` in `ai-tutor-api/Services/RepositoryRegistrationExtensions.cs`.
+- Application services registered via `AddApplicationServices()` in `ai-tutor-api/Services/ServicesRegistrationExtensions.cs`.
+- `Program.cs` updated to use the new extensions.
+
+3) Contracts (DTOs)
+- ProblemDetails DTO: `ai-tutor-contracts/DTOs/ApiProblemDetails.cs`.
+- Threads: `ThreadDto.cs`, `CreateThreadRequest.cs`, `UpdateThreadRequest.cs` (one type per file).
+
+4) Endpoints (Threads)
+- `ai-tutor-api/Controllers/ThreadsController.cs` now supports:
+  - POST create
+  - GET by id
+  - GET by folder
+  - GET by user
+  - PATCH update
+  - DELETE delete
+
+5) Build status
+- Solution builds successfully. Analyzer warnings remain (StyleCop headers, CA2007, CA1515, CA1062).
+
+NEXT STEPS (proposed order)
+
+A) Folders endpoints
+- POST create
+- PATCH rename/status/move (reparent + sort_order)
+- GET tree (3 levels)
+
+B) Messages endpoints
+- GET list (paged via `(created_at, id)` cursor), using `IMessageRepository.ListByThreadPagedAsync()`
+- POST create user message
+
+C) References & Attachments (read-first)
+- GET references by thread (newest first)
+- GET attachments by message
+
+D) Files (basic)
+- POST upload (multipart) → storage adapter (stub) + metadata persist
+- GET list by owner
+- GET download or presign (stub)
+
+E) OpenAPI description polish
+- Add example/response types for ProblemDetails and DTOs
+
+F) Analyzer hygiene (low risk)
+- Add file headers, order usings
+- Decide CA2007 policy (suppress in API host; keep in libraries if desired)
+- Suppress CA1515 for public controllers/API types
+- Add null-checks for request DTOs where flagged (CA1062)
+
+NOTES
+- Keep services and repositories Scoped to align with DbContext/UnitOfWork lifetime.
+- `instance` in ProblemDetails is currently set to the request path and can be evolved or removed later if desired.
+---

@@ -34,6 +34,13 @@ public sealed class DeleteThreadHandler(
         DeletingThread(logger, request.ThreadId, request.OrgId, null);
         var ids = new List<Guid> { request.ThreadId };
 
+        // Ensure thread exists and belongs to org; if not, signal 404 via ProblemDetails mapping
+        var existing = await threads.GetAsync(request.ThreadId, request.OrgId, ct);
+        if (existing is null)
+        {
+            throw new KeyNotFoundException($"Thread {request.ThreadId} not found in org {request.OrgId}.");
+        }
+
         await uow.ExecuteInTransactionAsync(
             async innerCt =>
             {

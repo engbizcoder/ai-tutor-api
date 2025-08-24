@@ -1,0 +1,35 @@
+AI Tutor – Implementation Guidelines
+
+Purpose
+- Central place to capture repetitive engineering rules and conventions for this solution.
+- Lives next to NextSteps.txt for quick reference and updates.
+
+Core Rules
+- Do NOT access repository classes directly from API controllers.
+  - Controllers in `ai-tutor-api/Controllers/` should send commands/queries via the mediator abstractions in `ai-tutor-services/Mediation/` to feature handlers in `ai-tutor-services/Features/`.
+  - Repositories declared in `ai-tutor-domain/Repositories/` with implementations in `ai-tutor-infrastructure/Repositories/` should be used inside services/handlers, not in controllers.
+
+- One type per file (project-wide convention).
+  - Do not group multiple enums, records, or interfaces in a single file.
+  - Prefer a clear filename that matches the type name.
+
+- Contracts and DTOs
+  - Place shared request/response contracts in `ai-tutor-contracts/DTOs/`.
+  - Keep API-facing shapes stable; avoid leaking domain or EF types outside contracts.
+
+- Infrastructure boundaries
+  - Avoid direct `DbContext` usage outside `ai-tutor-infrastructure/`.
+  - Access data via repositories only.
+
+- API hygiene
+  - Keep controllers thin: parameter binding, authorization, and delegating to mediator.
+  - Use `Middlewares/CorrelationIdMiddleware.cs` to propagate correlation IDs automatically.
+
+How to Add a New Feature (Quick Path)
+1) Define request/response DTOs in `ai-tutor-contracts/DTOs/` if needed.
+2) Add a mediator request/handler under the relevant feature in `ai-tutor-services/Features/<Area>/`.
+3) Inject and use repositories inside the handler (not controllers).
+4) Add a controller endpoint in `ai-tutor-api/Controllers/` that sends the mediator request and returns the result/problem details.
+
+Notes
+- Update this file as conventions evolve. Keep entries short and action-oriented.
