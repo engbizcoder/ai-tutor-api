@@ -1,8 +1,8 @@
 namespace Ai.Tutor.Services.Features.Threads;
 
-using Ai.Tutor.Domain.Entities;
-using Ai.Tutor.Domain.Enums;
-using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
+using Domain.Enums;
+using Mediation;
 
 public sealed class CreateThreadRequest : IRequest<ChatThread>
 {

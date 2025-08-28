@@ -1,7 +1,7 @@
 namespace Ai.Tutor.Api.Services;
 
-using Ai.Tutor.Api.Middlewares;
 using Microsoft.AspNetCore.Builder;
+using Middlewares;
 
 public static class CorrelationIdExtensions
 {

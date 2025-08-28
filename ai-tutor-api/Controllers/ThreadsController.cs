@@ -1,10 +1,10 @@
 namespace Ai.Tutor.Api.Controllers;
 
-using Ai.Tutor.Contracts.DTOs;
-using Ai.Tutor.Contracts.Enums;
-using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Services.Features.Threads;
 using Ai.Tutor.Services.Mediation;
+using Contracts.DTOs;
+using Contracts.Enums;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 public sealed class ThreadsController(IMediator mediator) : ControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult<ThreadDto>> CreateAsync([FromRoute] Guid orgId, [FromBody] Ai.Tutor.Contracts.DTOs.CreateThreadRequest req, CancellationToken ct)
+    public async Task<ActionResult<ThreadDto>> CreateAsync([FromRoute] Guid orgId, [FromBody] Contracts.DTOs.CreateThreadRequest req, CancellationToken ct)
     {
         var created = await mediator.Send(
             new Ai.Tutor.Services.Features.Threads.CreateThreadRequest
@@ -21,7 +21,7 @@ public sealed class ThreadsController(IMediator mediator) : ControllerBase
             UserId = req.UserId,
             FolderId = req.FolderId,
             Title = req.Title,
-            Status = (Ai.Tutor.Domain.Enums.ChatThreadStatus)req.Status,
+            Status = (Domain.Enums.ChatThreadStatus)req.Status,
             SortOrder = req.SortOrder ?? 1000m,
         },
             ct);

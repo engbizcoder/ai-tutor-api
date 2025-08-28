@@ -5,8 +5,8 @@
 namespace Ai.Tutor.Infrastructure.Data.Models;
 
 using System.Collections.Generic;
-using Ai.Tutor.Domain.Enums;
-using Ai.Tutor.Infrastructure.Data.Interfaces;
+using Domain.Enums;
+using Interfaces;
 
 public sealed class ThreadRecord : ICreatedAtEntity, IUpdatedAtEntity
 {

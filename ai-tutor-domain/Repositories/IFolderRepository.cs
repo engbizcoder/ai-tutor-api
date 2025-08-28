@@ -1,6 +1,6 @@
 namespace Ai.Tutor.Domain.Repositories;
 
-using Ai.Tutor.Domain.Entities;
+using Entities;
 
 public interface IFolderRepository
 {

@@ -1,7 +1,7 @@
 namespace Ai.Tutor.Services.Features.Threads;
 
-using Ai.Tutor.Domain.Repositories;
-using Ai.Tutor.Services.Mediation;
+using Domain.Repositories;
+using Mediation;
 
 public sealed class UpdateThreadHandler(IThreadRepository threads) : IRequestHandler<UpdateThreadCommand>
 {

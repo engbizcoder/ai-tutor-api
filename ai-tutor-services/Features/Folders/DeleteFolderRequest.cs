@@ -1,6 +1,6 @@
 namespace Ai.Tutor.Services.Features.Folders;
 
-using Ai.Tutor.Services.Mediation;
+using Mediation;
 
 public sealed class DeleteFolderRequest : IRequest
 {

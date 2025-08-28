@@ -3,10 +3,8 @@ using Ai.Tutor.Api.Seeding;
 using Ai.Tutor.Api.Services;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
-using Ai.Tutor.Infrastructure.Repositories;
 using Ai.Tutor.Services.Features.Folders;
 using Ai.Tutor.Services.Mediation;
-using Ai.Tutor.Services.Services;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -84,7 +82,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHttpsRedirection();
+}
 
 // Map controllers and SignalR hub placeholder
 app.MapControllers();
@@ -92,3 +93,10 @@ app.MapControllers();
 app.MapHub<Microsoft.AspNetCore.SignalR.Hub>("/hubs/threads");
 
 app.Run();
+
+namespace Ai.Tutor.Api
+{
+    public partial class Program
+    {
+    }
+}

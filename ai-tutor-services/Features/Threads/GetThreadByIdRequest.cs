@@ -1,7 +1,7 @@
 namespace Ai.Tutor.Services.Features.Threads;
 
-using Ai.Tutor.Domain.Entities;
-using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
+using Mediation;
 
 public sealed class GetThreadByIdRequest : IRequest<ChatThread>
 {

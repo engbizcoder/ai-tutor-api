@@ -1,8 +1,8 @@
 namespace Ai.Tutor.Services.Features.Threads;
 
-using Ai.Tutor.Domain.Entities;
-using Ai.Tutor.Domain.Repositories;
-using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
+using Domain.Repositories;
+using Mediation;
 
 public sealed class ListThreadsByFolderHandler(IThreadRepository threads) : IRequestHandler<ListThreadsByFolderRequest, List<ChatThread>>
 {

@@ -1,8 +1,8 @@
 namespace Ai.Tutor.Infrastructure.Data.Configurations;
 
-using Ai.Tutor.Infrastructure.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Models;
 
 public sealed class MessageRecordConfiguration : IEntityTypeConfiguration<MessageRecord>
 {

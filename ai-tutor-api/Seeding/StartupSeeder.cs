@@ -1,8 +1,8 @@
 namespace Ai.Tutor.Api.Seeding;
 
-using Ai.Tutor.Domain.Entities;
-using Ai.Tutor.Domain.Enums;
-using Ai.Tutor.Domain.Repositories;
+using Domain.Entities;
+using Domain.Enums;
+using Domain.Repositories;
 
 public sealed class StartupSeeder(IServiceProvider services) : IHostedService
 {

@@ -1,6 +1,6 @@
 namespace Ai.Tutor.Services.Features.Threads;
 
-using Ai.Tutor.Services.Mediation;
+using Mediation;
 
 public sealed class DeleteThreadRequest : IRequest
 {

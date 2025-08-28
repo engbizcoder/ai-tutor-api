@@ -1,10 +1,9 @@
-using Ai.Tutor.Infrastructure.Data.Interfaces;
-
 namespace Ai.Tutor.Infrastructure.Data;
 
-using Ai.Tutor.Domain.Enums;
-using Ai.Tutor.Infrastructure.Data.Models;
+using Ai.Tutor.Infrastructure.Data.Interfaces;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Models;
 
 public class AiTutorDbContext(DbContextOptions<AiTutorDbContext> options) : DbContext(options)
 {

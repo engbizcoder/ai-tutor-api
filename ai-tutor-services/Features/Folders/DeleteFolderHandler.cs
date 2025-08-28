@@ -1,7 +1,7 @@
 namespace Ai.Tutor.Services.Features.Folders;
 
-using Ai.Tutor.Domain.Repositories;
-using Ai.Tutor.Services.Mediation;
+using Domain.Repositories;
+using Mediation;
 using Microsoft.Extensions.Logging;
 
 public sealed class DeleteFolderHandler(

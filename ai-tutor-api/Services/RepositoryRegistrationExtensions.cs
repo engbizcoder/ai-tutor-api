@@ -1,7 +1,7 @@
 namespace Ai.Tutor.Api.Services;
 
-using Ai.Tutor.Domain.Repositories;
-using Ai.Tutor.Infrastructure.Repositories;
+using Domain.Repositories;
+using Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
 public static class RepositoryRegistrationExtensions

@@ -1,6 +1,6 @@
 namespace Ai.Tutor.Services.Services;
 
-using Ai.Tutor.Domain.Repositories;
+using Domain.Repositories;
 
 public sealed class OrgDeletionService(
     IUnitOfWork unitOfWork,

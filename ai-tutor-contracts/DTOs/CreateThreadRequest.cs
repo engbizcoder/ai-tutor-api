@@ -1,7 +1,7 @@
 namespace Ai.Tutor.Contracts.DTOs;
 
 using System.ComponentModel.DataAnnotations;
-using Ai.Tutor.Contracts.Enums;
+using Enums;
 
 public sealed class CreateThreadRequest
 {

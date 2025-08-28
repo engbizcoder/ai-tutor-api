@@ -4,7 +4,7 @@
 
 namespace Ai.Tutor.Infrastructure.Data.Models;
 
-using Ai.Tutor.Domain.Enums;
+using Domain.Enums;
 
 public sealed class OrgMemberRecord
 {

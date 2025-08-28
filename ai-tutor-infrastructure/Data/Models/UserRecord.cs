@@ -4,7 +4,7 @@
 
 namespace Ai.Tutor.Infrastructure.Data.Models;
 
-using Ai.Tutor.Infrastructure.Data.Interfaces;
+using Interfaces;
 
 public sealed class UserRecord : ICreatedAtEntity, IUpdatedAtEntity
 {

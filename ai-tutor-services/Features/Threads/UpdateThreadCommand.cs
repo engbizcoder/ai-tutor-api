@@ -1,7 +1,7 @@
 namespace Ai.Tutor.Services.Features.Threads;
 
-using Ai.Tutor.Domain.Enums;
-using Ai.Tutor.Services.Mediation;
+using Domain.Enums;
+using Mediation;
 
 public sealed class UpdateThreadCommand : IRequest
 {
