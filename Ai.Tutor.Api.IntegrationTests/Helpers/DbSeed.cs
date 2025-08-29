@@ -34,7 +34,7 @@ public static class DbSeed
         db.Orgs.Add(org);
         db.Users.Add(user);
         db.OrgMembers.Add(member);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync().ConfigureAwait(false);
 
         return (org, user);
     }
@@ -54,7 +54,7 @@ public static class DbSeed
             CreatedAt = DateTime.UtcNow,
         };
         db.Folders.Add(folder);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync().ConfigureAwait(false);
         return folder;
     }
 
@@ -72,7 +72,7 @@ public static class DbSeed
             CreatedAt = DateTime.UtcNow,
         };
         db.ChatThreads.Add(thread);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync().ConfigureAwait(false);
         return thread;
     }
 
@@ -88,7 +88,7 @@ public static class DbSeed
             CreatedAt = DateTime.UtcNow,
         };
         db.ChatMessages.Add(msg);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync().ConfigureAwait(false);
         return msg;
     }
 }

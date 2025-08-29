@@ -17,13 +17,14 @@ public sealed class FoldersEndpointsTests : IntegrationTestBase, IClassFixture<T
     [Fact]
     public async Task Delete_Folder_Cascades_To_Threads_And_Messages()
     {
-        var client = this.Factory.CreateClient();
+        var client = this.CreateClient();
 
-        using var scope = this.Factory.Services.CreateScope();
+        // Seed full hierarchy: org, user, folder, thread
+        var (org, user, folder, thread) = await this.SeedFullHierarchyAsync();
+
+        // Add a message to the thread
+        using var scope = this.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AiTutorDbContext>();
-        var (org, user) = await DbSeed.EnsureOrgAndUserAsync(db);
-        var folder = await DbSeed.EnsureFolderAsync(db, org.Id, user.Id);
-        var thread = await DbSeed.EnsureThreadAsync(db, org.Id, user.Id, folder.Id);
         await DbSeed.EnsureMessageAsync(db, thread.Id);
 
         // Act: delete folder

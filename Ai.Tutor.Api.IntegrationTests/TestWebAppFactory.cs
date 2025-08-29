@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
 using Testcontainers.PostgreSql;
 using Xunit;
 
@@ -39,10 +38,10 @@ public sealed class TestWebAppFactory : WebApplicationFactory<Program>, IAsyncLi
             this.pg.GetConnectionString());
 
         // Build the server/host and apply migrations
-        _ = Server; // ensure host is created
+        _ = this.Server; // ensure host is created
         using var scope = this.Services.CreateScope();
         var dbCtx = scope.ServiceProvider.GetRequiredService<AiTutorDbContext>();
-        await dbCtx.Database.MigrateAsync();
+        await dbCtx.Database.MigrateAsync().ConfigureAwait(false);
     }
 
     public async Task ResetDatabaseAsync()
@@ -59,14 +58,14 @@ public sealed class TestWebAppFactory : WebApplicationFactory<Program>, IAsyncLi
             users,
             orgs
             RESTART IDENTITY CASCADE;";
-        await dbCtx.Database.ExecuteSqlRawAsync(sql);
+        await dbCtx.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
     }
 
     public new async Task DisposeAsync()
     {
-        await base.DisposeAsync();
-        await this.pg.StopAsync();
-        await this.pg.DisposeAsync();
+        await base.DisposeAsync().ConfigureAwait(false);
+        await this.pg.StopAsync().ConfigureAwait(false);
+        await this.pg.DisposeAsync().ConfigureAwait(false);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

@@ -5,9 +5,6 @@ using System.Net.Http.Json;
 using Contracts.DTOs;
 using Contracts.Enums;
 using FluentAssertions;
-using Helpers;
-using Infrastructure.Data;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 public sealed class ThreadsEndpointsTests : IntegrationTestBase, IClassFixture<TestWebAppFactory>
@@ -20,13 +17,10 @@ public sealed class ThreadsEndpointsTests : IntegrationTestBase, IClassFixture<T
     [Fact]
     public async Task Create_Get_Update_List_Delete_Thread_Succeeds()
     {
-        var client = this.Factory.CreateClient();
+        var client = this.CreateClient();
 
-        // Seed baseline Org & User (& optional Folder)
-        using var scope = this.Factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AiTutorDbContext>();
-        var (org, user) = await DbSeed.EnsureOrgAndUserAsync(db);
-        var folder = await DbSeed.EnsureFolderAsync(db, org.Id, user.Id);
+        // Seed baseline Org, User & Folder
+        var (org, user, folder) = await this.SeedOrgUserAndFolderAsync();
 
         // Create
         var createReq = new CreateThreadRequest
