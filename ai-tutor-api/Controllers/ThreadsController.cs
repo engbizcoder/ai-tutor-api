@@ -26,10 +26,10 @@ public sealed class ThreadsController(IMediator mediator) : ControllerBase
         },
             ct);
         var dto = MapToDto(created);
-        return this.CreatedAtRoute(nameof(this.CreateAsync), new { orgId, threadId = dto.Id }, dto);
+        return this.CreatedAtRoute("GetThreadById", new { orgId, threadId = dto.Id }, dto);
     }
 
-    [HttpGet("{threadId:guid}")]
+    [HttpGet("{threadId:guid}", Name="GetThreadById")]
     public async Task<ActionResult<ThreadDto>> GetByIdAsync([FromRoute] Guid orgId, [FromRoute] Guid threadId, CancellationToken ct)
     {
         var item = await mediator.Send(new GetThreadByIdRequest { OrgId = orgId, ThreadId = threadId }, ct);

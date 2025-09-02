@@ -53,8 +53,11 @@ builder.Services.AddScoped<IMediator, Mediator>();
 // Register handlers by assembly scanning (ai-tutor-services)
 builder.Services.AddMediatorHandlersFromAssembly(typeof(DeleteFolderHandler).Assembly);
 
-// Seeding
-builder.Services.AddHostedService<StartupSeeder>();
+// Seeding: disable in Testing environment so integration tests control their own data
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddHostedService<StartupSeeder>();
+}
 
 // OpenAPI for DTOs/problem schema
 builder.Services.AddOpenApi();

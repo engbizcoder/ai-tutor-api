@@ -41,21 +41,23 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     /// <summary>
     /// Gets a required service from the DI container.
     /// </summary>
-    protected T GetService<T>() where T : notnull => this.Factory.Services.GetRequiredService<T>();
+    protected T GetService<T>()
+        where T : notnull
+        => this.Factory.Services.GetRequiredService<T>();
 
     /// <summary>
     /// Gets the database context from a new scope.
     /// </summary>
-    protected async Task<AiTutorDbContext> GetDbContextAsync()
+    protected AiTutorDbContext GetDbContext()
     {
-        var scope = this.CreateScope();
+        using var scope = this.CreateScope();
         return scope.ServiceProvider.GetRequiredService<AiTutorDbContext>();
     }
 
     /// <summary>
     /// Seeds baseline organization and user data for tests.
     /// </summary>
-    protected async Task<(OrgRecord org, UserRecord user)> SeedOrgAndUserAsync()
+    protected async Task<(OrgRecord Org, UserRecord User)> SeedOrgAndUserAsync()
     {
         using var scope = this.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AiTutorDbContext>();
@@ -65,7 +67,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     /// <summary>
     /// Seeds baseline organization, user, and folder data for tests.
     /// </summary>
-    protected async Task<(OrgRecord org, UserRecord user, FolderRecord folder)> SeedOrgUserAndFolderAsync()
+    protected async Task<(OrgRecord Org, UserRecord User, FolderRecord Folder)> SeedOrgUserAndFolderAsync()
     {
         using var scope = this.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AiTutorDbContext>();
