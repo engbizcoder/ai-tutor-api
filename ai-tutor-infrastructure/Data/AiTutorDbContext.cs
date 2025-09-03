@@ -42,6 +42,7 @@ public class AiTutorDbContext(DbContextOptions<AiTutorDbContext> options) : DbCo
         // Register PostgreSQL enums matching approved types
         modelBuilder.HasPostgresEnum<OrgType>(name: "org_type_enum");
         modelBuilder.HasPostgresEnum<OrgRole>(name: "org_role_enum");
+        modelBuilder.HasPostgresEnum<OrgLifecycleStatus>(name: "org_lifecycle_status_enum");
         modelBuilder.HasPostgresEnum<FolderType>(name: "folder_type_enum");
         modelBuilder.HasPostgresEnum<FolderStatus>(name: "folder_status_enum");
         modelBuilder.HasPostgresEnum<ChatThreadStatus>(name: "thread_status_enum");

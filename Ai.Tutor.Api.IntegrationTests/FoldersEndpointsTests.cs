@@ -28,11 +28,11 @@ public sealed class FoldersEndpointsTests : IntegrationTestBase, IClassFixture<T
         await DbSeed.EnsureMessageAsync(db, thread.Id);
 
         // Act: delete folder
-        var resp = await client.DeleteAsync(new Uri($"/api/orgs/{org.Id}/folders/{folder.Id}"));
+        var resp = await client.DeleteAsync(new Uri(client.BaseAddress, $"/api/orgs/{org.Id}/folders/{folder.Id}"));
         resp.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Assert: thread is gone
-        var getThread = await client.GetAsync(new Uri($"/api/orgs/{org.Id}/threads/{thread.Id}"));
+        var getThread = await client.GetAsync(new Uri(client.BaseAddress, $"/api/orgs/{org.Id}/threads/{thread.Id}"));
         getThread.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

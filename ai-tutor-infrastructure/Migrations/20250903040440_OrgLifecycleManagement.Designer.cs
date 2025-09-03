@@ -3,6 +3,7 @@ using System;
 using Ai.Tutor.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Ai.Tutor.Infrastructure.Migrations
 {
     [DbContext(typeof(AiTutorDbContext))]
-    partial class AiTutorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250903040440_OrgLifecycleManagement")]
+    partial class OrgLifecycleManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,7 +26,6 @@ namespace Ai.Tutor.Infrastructure.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "folder_status_enum", new[] { "active", "archived", "deleted" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "folder_type_enum", new[] { "project", "folder" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "message_status_enum", new[] { "sending", "sent", "error" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "org_lifecycle_status_enum", new[] { "active", "disabled", "deleted", "purged" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "org_role_enum", new[] { "owner", "admin", "member" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "org_type_enum", new[] { "personal", "education", "household", "business" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "sender_type_enum", new[] { "user", "ai" });

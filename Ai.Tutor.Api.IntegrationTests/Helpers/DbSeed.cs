@@ -13,6 +13,8 @@ public static class DbSeed
             Name = "Test Org",
             Slug = "test-org",
             Type = Domain.Enums.OrgType.Business,
+            LifecycleStatus = Domain.Enums.OrgLifecycleStatus.Active,
+            RetentionDays = 90,
             CreatedAt = DateTime.UtcNow,
         };
         var user = new UserRecord
@@ -37,6 +39,27 @@ public static class DbSeed
         await db.SaveChangesAsync().ConfigureAwait(false);
 
         return (org, user);
+    }
+
+    public static async Task<OrgRecord> CreateOrgAsync(
+        AiTutorDbContext db,
+        string name,
+        string slug)
+    {
+        var org = new OrgRecord
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Slug = slug,
+            Type = Domain.Enums.OrgType.Business,
+            LifecycleStatus = Domain.Enums.OrgLifecycleStatus.Active,
+            RetentionDays = 90,
+            CreatedAt = DateTime.UtcNow,
+        };
+
+        db.Orgs.Add(org);
+        await db.SaveChangesAsync().ConfigureAwait(false);
+        return org;
     }
 
     public static async Task<FolderRecord> EnsureFolderAsync(AiTutorDbContext db, Guid orgId, Guid ownerUserId)

@@ -48,17 +48,28 @@ public sealed class TestWebAppFactory : WebApplicationFactory<Program>, IAsyncLi
     {
         using var scope = this.Services.CreateScope();
         var dbCtx = scope.ServiceProvider.GetRequiredService<AiTutorDbContext>();
-        // Truncate all application tables and restart identities
-        // Order doesn't matter with CASCADE
-        var sql = @"TRUNCATE TABLE
-            org_members,
-            chat_messages,
-            chat_threads,
-            folders,
-            users,
-            orgs
-            RESTART IDENTITY CASCADE;";
-        await dbCtx.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
+
+        // Disable foreign key constraints temporarily
+        await dbCtx.Database.ExecuteSqlRawAsync("SET session_replication_role = replica;").ConfigureAwait(false);
+
+        try
+        {
+            // Truncate all application tables and restart identities
+            var sql = @"TRUNCATE TABLE
+                chat_messages,
+                chat_threads,
+                folders,
+                org_members,
+                users,
+                orgs
+                RESTART IDENTITY CASCADE;";
+            await dbCtx.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
+        }
+        finally
+        {
+            // Re-enable foreign key constraints
+            await dbCtx.Database.ExecuteSqlRawAsync("SET session_replication_role = DEFAULT;").ConfigureAwait(false);
+        }
     }
 
     public new async Task DisposeAsync()
@@ -71,9 +82,6 @@ public sealed class TestWebAppFactory : WebApplicationFactory<Program>, IAsyncLi
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
-        builder.ConfigureTestServices(
-            services =>
-        {
-        });
+        builder.ConfigureTestServices(services => { });
     }
 }

@@ -9,6 +9,7 @@ internal static class ServicesRegistrationExtensions
     {
         services.AddScoped<IOrgDeletionService, OrgDeletionService>();
         services.AddScoped<IUserDeletionService, UserDeletionService>();
+        services.AddHostedService<OrgPurgeBackgroundService>();
         return services;
     }
 }

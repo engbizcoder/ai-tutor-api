@@ -33,3 +33,13 @@ How to Add a New Feature (Quick Path)
 
 Notes
 - Update this file as conventions evolve. Keep entries short and action-oriented.
+
+
+Prefix local calls with this
+Documentation text should end with a period
+ Code should not contain trailing whitespaces
+ Make sure: The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines
+ The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines
+ avoid : Inconsistent braces style: missing brace (for if or for single line statements)
+ do not prefix with this when a dependency is injected in primary constructor and is not assigned to a private field which is then used
+ do not use this prefix for private static method calls or other static method calls

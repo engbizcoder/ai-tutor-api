@@ -32,6 +32,16 @@ public sealed class Org : AuditableEntity
 
     public OrgType Type { get; set; }
 
+    public OrgLifecycleStatus LifecycleStatus { get; set; } = OrgLifecycleStatus.Active;
+
+    public DateTime? DisabledAt { get; set; }
+
+    public DateTime? DeletedAt { get; set; }
+
+    public DateTime? PurgeScheduledAt { get; set; }
+
+    public int RetentionDays { get; set; } = 90;
+
     public string? MetadataJson { get; set; }
 
     public ICollection<OrgMember> Members { get; set; } = [];
