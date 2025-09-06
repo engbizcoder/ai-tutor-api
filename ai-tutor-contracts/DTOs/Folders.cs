@@ -1,7 +1,6 @@
-using System.ComponentModel.DataAnnotations;
-using Ai.Tutor.Contracts.Enums;
-
 namespace Ai.Tutor.Contracts.DTOs;
+
+using Ai.Tutor.Contracts.Enums;
 
 public record FolderDto(
     Guid Id,
@@ -18,11 +17,8 @@ public record FolderDto(
 
 public class CreateFolderRequest
 {
-    [Required]
     public FolderType Type { get; set; }
 
-    [Required]
-    [MinLength(1), MaxLength(200)]
     public string Name { get; set; } = string.Empty;
 
     public Guid? ParentId { get; set; }
@@ -30,7 +26,6 @@ public class CreateFolderRequest
 
 public class UpdateFolderRequest
 {
-    [MinLength(1), MaxLength(200)]
     public string? Name { get; set; }
 
     public FolderStatus? Status { get; set; }

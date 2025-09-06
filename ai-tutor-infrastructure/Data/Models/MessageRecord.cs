@@ -19,6 +19,8 @@ public sealed class MessageRecord : ICreatedAtEntity, IUpdatedAtEntity
 
     public string? MetadataJson { get; set; }
 
+    public string? IdempotencyKey { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }

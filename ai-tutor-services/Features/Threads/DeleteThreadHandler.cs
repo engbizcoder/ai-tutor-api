@@ -11,27 +11,9 @@ public sealed class DeleteThreadHandler(
     ILogger<DeleteThreadHandler> logger)
     : IRequestHandler<DeleteThreadRequest>
 {
-    private static readonly Action<ILogger, Guid, Guid, Exception?> DeletingThread =
-        LoggerMessage.Define<Guid, Guid>(
-            LogLevel.Information,
-            new EventId(1101, nameof(DeletingThread)),
-            "Deleting thread {ThreadId} in org {OrgId}");
-
-    private static readonly Action<ILogger, Guid, Exception?> DeletedThreadMessages =
-        LoggerMessage.Define<Guid>(
-            LogLevel.Debug,
-            new EventId(1102, nameof(DeletedThreadMessages)),
-            "Deleted messages for thread {ThreadId}");
-
-    private static readonly Action<ILogger, Guid, Exception?> DeletedThread =
-        LoggerMessage.Define<Guid>(
-            LogLevel.Information,
-            new EventId(1103, nameof(DeletedThread)),
-            "Deleted thread {ThreadId}");
-
     public async Task Handle(DeleteThreadRequest request, CancellationToken ct = default)
     {
-        DeletingThread(logger, request.ThreadId, request.OrgId, null);
+        logger.LogInformation("Deleting thread {ThreadId} in org {OrgId}", request.ThreadId, request.OrgId);
         var ids = new List<Guid> { request.ThreadId };
 
         // Ensure thread exists and belongs to org; if not, signal 404 via ProblemDetails mapping
@@ -45,9 +27,9 @@ public sealed class DeleteThreadHandler(
             async innerCt =>
             {
                 await messages.DeleteByThreadIdsAsync(ids, innerCt);
-                DeletedThreadMessages(logger, request.ThreadId, null);
+                logger.LogDebug("Deleted messages for thread {ThreadId}", request.ThreadId);
                 await threads.DeleteAsync(request.ThreadId, innerCt);
-                DeletedThread(logger, request.ThreadId, null);
+                logger.LogInformation("Deleted thread {ThreadId}", request.ThreadId);
             },
             ct);
     }

@@ -67,6 +67,17 @@ public sealed class MessageRepository(AiTutorDbContext db)
         return ToDomain(rec);
     }
 
+    public async Task<ChatMessage?> GetByIdempotencyKeyAsync(string idempotencyKey, Guid orgId, CancellationToken ct = default)
+    {
+        var record = await db.ChatMessages
+            .AsNoTracking()
+            .Include(m => m.Thread)
+            .Where(m => m.IdempotencyKey == idempotencyKey && m.Thread!.OrgId == orgId)
+            .FirstOrDefaultAsync(ct);
+
+        return record == null ? null : ToDomain(record);
+    }
+
     public async Task DeleteByThreadIdsAsync(IReadOnlyCollection<Guid> threadIds, CancellationToken ct = default)
     {
         if (threadIds.Count == 0)
@@ -128,6 +139,7 @@ public sealed class MessageRepository(AiTutorDbContext db)
         Status = x.Status,
         Content = x.Content,
         MetadataJson = x.MetadataJson,
+        IdempotencyKey = x.IdempotencyKey,
         CreatedAt = x.CreatedAt,
         UpdatedAt = x.UpdatedAt,
     };
@@ -141,6 +153,7 @@ public sealed class MessageRepository(AiTutorDbContext db)
         Status = x.Status,
         Content = x.Content,
         MetadataJson = x.MetadataJson,
+        IdempotencyKey = x.IdempotencyKey,
         CreatedAt = x.CreatedAt,
         UpdatedAt = x.UpdatedAt,
     };

@@ -43,3 +43,15 @@ Documentation text should end with a period
  avoid : Inconsistent braces style: missing brace (for if or for single line statements)
  do not prefix with this when a dependency is injected in primary constructor and is not assigned to a private field which is then used
  do not use this prefix for private static method calls or other static method calls
+- Add the following constructor to MessageNotFoundException: public MessageNotFoundException() .. always  make sure this warning is not there CA1032
+- please use fluent validations library for the validations and do not have validations in the handlers unless we want to have specific manual validations, with latest version we can not wire up automatically and have to inject validators 
+in controllers and then validate in controllers and throw appropriate problem details. The idea also should be that these errors somehow map to some error codes and we can use them in the UI. The error codes
+should be also accompanied by parameters that then can be used to provide translated texts on the UI with interpolation with these additional params that will be dynamic depending upon excecption or problem details context.
+The same is also true with exceptions handling and their mapping to problem details.
+- Whenever you create new files and there are no build errors, you must run the build and check if there are any warnings or errors in new code and fix them (stylecop issues ) and then write integration tests for the new code and execute them (only when this
+new code really requires integration tests, so for example a new controller endpoint and entire flow down to DB or external service call)
+
+-- SA1128: Put constructor initializers on their own line
+-- SA1116: The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines
+-- SA1516: Elements should be separated by blank line
+-- SA1028: Code should not contain trailing whitespaces

@@ -1,6 +1,6 @@
-using Ai.Tutor.Domain.Enums;
-
 namespace Ai.Tutor.Domain.Entities;
+
+using Ai.Tutor.Domain.Enums;
 
 public interface IHasCreatedAt
 {
@@ -120,4 +120,6 @@ public sealed class ChatMessage : AuditableEntity
     public string Content { get; set; } = string.Empty;
 
     public string? MetadataJson { get; set; }
+
+    public string? IdempotencyKey { get; set; }
 }

@@ -7,7 +7,8 @@ using Infrastructure.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-public sealed class FoldersEndpointsTests : IntegrationTestBase, IClassFixture<TestWebAppFactory>
+[Collection("Database Integration Tests")]
+public sealed class FoldersEndpointsTests : IntegrationTestBase
 {
     public FoldersEndpointsTests(TestWebAppFactory factory)
         : base(factory)

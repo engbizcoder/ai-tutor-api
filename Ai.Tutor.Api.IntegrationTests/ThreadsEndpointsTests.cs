@@ -7,7 +7,8 @@ using Contracts.Enums;
 using FluentAssertions;
 using Xunit;
 
-public sealed class ThreadsEndpointsTests : IntegrationTestBase, IClassFixture<TestWebAppFactory>
+[Collection("Database Integration Tests")]
+public sealed class ThreadsEndpointsTests : IntegrationTestBase
 {
     public ThreadsEndpointsTests(TestWebAppFactory factory)
         : base(factory)

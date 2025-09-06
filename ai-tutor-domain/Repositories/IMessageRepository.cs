@@ -12,5 +12,7 @@ public interface IMessageRepository
 
     Task<ChatMessage> AddAsync(ChatMessage message, CancellationToken ct = default);
 
+    Task<ChatMessage?> GetByIdempotencyKeyAsync(string idempotencyKey, Guid orgId, CancellationToken ct = default);
+
     Task DeleteByThreadIdsAsync(IReadOnlyCollection<Guid> threadIds, CancellationToken ct = default);
 }

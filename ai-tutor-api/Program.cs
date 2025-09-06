@@ -1,10 +1,14 @@
 using System.Globalization;
+using Ai.Tutor.Api.DTOs;
 using Ai.Tutor.Api.Seeding;
 using Ai.Tutor.Api.Services;
+using Ai.Tutor.Api.Validators;
+using Ai.Tutor.Contracts.DTOs;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
 using Ai.Tutor.Services.Features.Folders;
 using Ai.Tutor.Services.Mediation;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +33,10 @@ builder.Services.AddLocalization();
 
 // FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
+
+builder.Services.AddScoped<IValidator<ListMessagesQueryParams>, ListMessagesRequestValidator>();
+
+builder.Services.AddScoped<IValidator<CreateMessageRequest>, CreateMessageRequestValidator>();
 
 // ProblemDetails (Hellang) via extension
 builder.Services.AddApiProblemDetails(builder.Environment);
