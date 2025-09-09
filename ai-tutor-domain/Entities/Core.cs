@@ -123,3 +123,70 @@ public sealed class ChatMessage : AuditableEntity
 
     public string? IdempotencyKey { get; set; }
 }
+
+public sealed class StoredFile : AuditableEntity
+{
+    public Guid OrgId { get; set; }
+
+    public Guid OwnerUserId { get; set; }
+
+    public string FileName { get; set; } = string.Empty;
+
+    public string ContentType { get; set; } = string.Empty;
+
+    public string StorageKey { get; set; } = string.Empty;
+
+    public string? StorageUrl { get; set; }
+
+    public long SizeBytes { get; set; }
+
+    public string? ChecksumSha256 { get; set; }
+
+    public int? Pages { get; set; }
+
+    public string? MetadataJson { get; set; }
+}
+
+public sealed class Attachment : Entity, IHasCreatedAt
+{
+    public Guid MessageId { get; set; }
+
+    public Guid FileId { get; set; }
+
+    public AttachmentType Type { get; set; }
+
+    public string? MetadataJson { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+}
+
+public sealed class Reference : Entity, IHasCreatedAt
+{
+    public Guid ThreadId { get; set; }
+
+    public Guid? MessageId { get; set; }
+
+    public ReferenceType Type { get; set; }
+
+    public string Title { get; set; } = string.Empty;
+
+    public string? Url { get; set; }
+
+    public Guid? FileId { get; set; }
+
+    public int? PageNumber { get; set; }
+
+    public string? PreviewImgUrl { get; set; }
+
+    public string? MetadataJson { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+
+    public void Validate()
+    {
+        if (string.IsNullOrWhiteSpace(Url) && !FileId.HasValue)
+        {
+            throw new ArgumentException("Either Url or FileId must be provided for a Reference.");
+        }
+    }
+}

@@ -55,3 +55,6 @@ new code really requires integration tests, so for example a new controller endp
 -- SA1116: The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines
 -- SA1516: Elements should be separated by blank line
 -- SA1028: Code should not contain trailing whitespaces
+-- SA1116: The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines
+-- SA1128: Put constructor initializers on their own line
+-- SA1028: Code should not contain trailing whitespaces

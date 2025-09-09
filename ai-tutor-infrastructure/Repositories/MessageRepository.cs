@@ -90,6 +90,22 @@ public sealed class MessageRepository(AiTutorDbContext db)
             .ExecuteDeleteAsync(ct);
     }
 
+    public async Task<IReadOnlyList<Guid>> ListIdsByThreadIdsAsync(IReadOnlyCollection<Guid> threadIds, CancellationToken ct = default)
+    {
+        if (threadIds.Count == 0)
+        {
+            return Array.Empty<Guid>();
+        }
+
+        var ids = await db.ChatMessages
+            .AsNoTracking()
+            .Where(m => threadIds.Contains(m.ThreadId))
+            .Select(m => m.Id)
+            .ToListAsync(ct);
+
+        return ids;
+    }
+
     private static string EncodeCursor(DateTime createdAt, Guid id)
     {
         var payload = $"{createdAt.Ticks}:{id}";

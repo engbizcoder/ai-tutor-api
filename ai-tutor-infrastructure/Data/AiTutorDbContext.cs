@@ -19,6 +19,12 @@ public class AiTutorDbContext(DbContextOptions<AiTutorDbContext> options) : DbCo
 
     public DbSet<MessageRecord> ChatMessages => this.Set<MessageRecord>();
 
+    public DbSet<FileRecord> Files => this.Set<FileRecord>();
+
+    public DbSet<AttachmentRecord> Attachments => this.Set<AttachmentRecord>();
+
+    public DbSet<ReferenceRecord> DocumentReferences => this.Set<ReferenceRecord>();
+
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         this.ApplyTimestamps();
@@ -48,6 +54,8 @@ public class AiTutorDbContext(DbContextOptions<AiTutorDbContext> options) : DbCo
         modelBuilder.HasPostgresEnum<ChatThreadStatus>(name: "thread_status_enum");
         modelBuilder.HasPostgresEnum<MessageStatus>(name: "message_status_enum");
         modelBuilder.HasPostgresEnum<SenderType>(name: "sender_type_enum");
+        modelBuilder.HasPostgresEnum<AttachmentType>(name: "attachment_type_enum");
+        modelBuilder.HasPostgresEnum<ReferenceType>(name: "reference_type_enum");
 
         // Apply configurations from this assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AiTutorDbContext).Assembly);

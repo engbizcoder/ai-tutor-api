@@ -1,0 +1,15 @@
+namespace Ai.Tutor.Services.Features.Files;
+
+using Ai.Tutor.Domain.Entities;
+using Ai.Tutor.Services.Mediation;
+
+public sealed class ListFilesRequest : IRequest<(IReadOnlyList<StoredFile> Items, string? NextCursor)>
+{
+    public Guid OrgId { get; init; }
+
+    public Guid OwnerUserId { get; init; }
+
+    public int PageSize { get; init; } = 20;
+
+    public string? Cursor { get; init; }
+}

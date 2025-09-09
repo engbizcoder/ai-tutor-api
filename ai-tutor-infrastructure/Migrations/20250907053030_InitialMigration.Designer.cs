@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Ai.Tutor.Infrastructure.Migrations
 {
     [DbContext(typeof(AiTutorDbContext))]
-    [Migration("20250903152455_SoftDeleteOrgs")]
-    partial class SoftDeleteOrgs
+    [Migration("20250907053030_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,15 +23,147 @@ namespace Ai.Tutor.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "attachment_type_enum", new[] { "document", "image", "other" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "folder_status_enum", new[] { "active", "archived", "deleted" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "folder_type_enum", new[] { "project", "folder" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "message_status_enum", new[] { "sending", "sent", "error" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "org_lifecycle_status_enum", new[] { "active", "disabled", "deleted", "purged" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "org_role_enum", new[] { "owner", "admin", "member" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "org_type_enum", new[] { "personal", "education", "household", "business" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "reference_type_enum", new[] { "file", "page", "video", "link", "formula" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "sender_type_enum", new[] { "user", "ai" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "thread_status_enum", new[] { "active", "archived", "deleted" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Ai.Tutor.Infrastructure.Data.Models.AttachmentRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("file_id");
+
+                    b.Property<Guid?>("FileId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("message_id");
+
+                    b.Property<Guid?>("MessageId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_attachments");
+
+                    b.HasIndex("FileId");
+
+                    b.HasIndex("FileId1");
+
+                    b.HasIndex("MessageId")
+                        .HasDatabaseName("ix_attachments_message");
+
+                    b.HasIndex("MessageId1");
+
+                    b.ToTable("attachments", (string)null);
+                });
+
+            modelBuilder.Entity("Ai.Tutor.Infrastructure.Data.Models.FileRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ChecksumSha256")
+                        .HasColumnType("text")
+                        .HasColumnName("checksum_sha256");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata");
+
+                    b.Property<Guid>("OrgId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("org_id");
+
+                    b.Property<Guid?>("OrgId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OwnerUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_user_id");
+
+                    b.Property<Guid?>("OwnerUserId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("Pages")
+                        .HasColumnType("integer")
+                        .HasColumnName("pages");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("storage_key");
+
+                    b.Property<string>("StorageUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("storage_url");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_files");
+
+                    b.HasIndex("ChecksumSha256")
+                        .HasDatabaseName("ix_files_checksum");
+
+                    b.HasIndex("OrgId1");
+
+                    b.HasIndex("OwnerUserId");
+
+                    b.HasIndex("OwnerUserId1");
+
+                    b.HasIndex("OrgId", "OwnerUserId")
+                        .HasDatabaseName("ix_files_org_owner");
+
+                    b.ToTable("files", (string)null);
+                });
 
             modelBuilder.Entity("Ai.Tutor.Infrastructure.Data.Models.FolderRecord", b =>
                 {
@@ -121,6 +253,9 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<string>("IdempotencyKey")
+                        .HasColumnType("text");
 
                     b.Property<string>("MetadataJson")
                         .HasColumnType("jsonb")
@@ -245,6 +380,87 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     b.ToTable("orgs", (string)null);
                 });
 
+            modelBuilder.Entity("Ai.Tutor.Infrastructure.Data.Models.ReferenceRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("FileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("file_id");
+
+                    b.Property<Guid?>("FileId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("MessageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("message_id");
+
+                    b.Property<Guid?>("MessageId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata");
+
+                    b.Property<int?>("PageNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("page_number");
+
+                    b.Property<string>("PreviewImgUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("preview_img_url");
+
+                    b.Property<Guid>("ThreadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("thread_id");
+
+                    b.Property<Guid?>("ThreadId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("text")
+                        .HasColumnName("url");
+
+                    b.HasKey("Id")
+                        .HasName("pk_document_references");
+
+                    b.HasIndex("FileId")
+                        .HasDatabaseName("ix_document_references_file_id");
+
+                    b.HasIndex("FileId1");
+
+                    b.HasIndex("MessageId")
+                        .HasDatabaseName("ix_document_references_message");
+
+                    b.HasIndex("MessageId1");
+
+                    b.HasIndex("ThreadId1");
+
+                    b.HasIndex("ThreadId", "CreatedAt", "Id")
+                        .HasDatabaseName("ix_document_references_thread_created_id");
+
+                    b.ToTable("document_references", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_document_references_url_or_file", "(url IS NOT NULL) OR (file_id IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("Ai.Tutor.Infrastructure.Data.Models.ThreadRecord", b =>
                 {
                     b.Property<Guid>("Id")
@@ -353,6 +569,64 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("Ai.Tutor.Infrastructure.Data.Models.AttachmentRecord", b =>
+                {
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.FileRecord", null)
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_attachments_file");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.FileRecord", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId1");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.MessageRecord", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_attachments_message");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.MessageRecord", "Message")
+                        .WithMany()
+                        .HasForeignKey("MessageId1");
+
+                    b.Navigation("File");
+
+                    b.Navigation("Message");
+                });
+
+            modelBuilder.Entity("Ai.Tutor.Infrastructure.Data.Models.FileRecord", b =>
+                {
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.OrgRecord", null)
+                        .WithMany()
+                        .HasForeignKey("OrgId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_files_org");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.OrgRecord", "Org")
+                        .WithMany()
+                        .HasForeignKey("OrgId1");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.UserRecord", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_files_owner");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.UserRecord", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId1");
+
+                    b.Navigation("Org");
+
+                    b.Navigation("OwnerUser");
+                });
+
             modelBuilder.Entity("Ai.Tutor.Infrastructure.Data.Models.FolderRecord", b =>
                 {
                     b.HasOne("Ai.Tutor.Infrastructure.Data.Models.OrgRecord", null)
@@ -403,6 +677,46 @@ namespace Ai.Tutor.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_org_members_users");
+                });
+
+            modelBuilder.Entity("Ai.Tutor.Infrastructure.Data.Models.ReferenceRecord", b =>
+                {
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.FileRecord", null)
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_document_references_file");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.FileRecord", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId1");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.MessageRecord", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_document_references_message");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.MessageRecord", "Message")
+                        .WithMany()
+                        .HasForeignKey("MessageId1");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.ThreadRecord", null)
+                        .WithMany()
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_document_references_thread");
+
+                    b.HasOne("Ai.Tutor.Infrastructure.Data.Models.ThreadRecord", "Thread")
+                        .WithMany()
+                        .HasForeignKey("ThreadId1");
+
+                    b.Navigation("File");
+
+                    b.Navigation("Message");
+
+                    b.Navigation("Thread");
                 });
 
             modelBuilder.Entity("Ai.Tutor.Infrastructure.Data.Models.ThreadRecord", b =>

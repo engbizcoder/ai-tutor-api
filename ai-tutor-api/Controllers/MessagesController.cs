@@ -15,7 +15,7 @@ public sealed class MessagesController(
     IValidator<ListMessagesQueryParams> listValidator,
     IValidator<Contracts.DTOs.CreateMessageRequest> createValidator) : ControllerBase
 {
-    [HttpGet]
+    [HttpGet(Name = "ListMessages")]
     public async Task<ActionResult<PagedMessagesResponse>> ListAsync(
         [FromRoute] Guid orgId,
         [FromRoute] Guid threadId,
@@ -33,7 +33,7 @@ public sealed class MessagesController(
             var problemDetails = new ValidationProblemDetails();
             foreach (var error in validationResult.Errors)
             {
-                problemDetails.Errors.Add(error.PropertyName, new[] { error.ErrorMessage });
+                problemDetails.Errors.Add(error.PropertyName, [error.ErrorMessage]);
                 problemDetails.Extensions.Add($"errorCode_{error.PropertyName}", error.ErrorCode);
             }
             problemDetails.Title = "Validation failed";
@@ -76,7 +76,7 @@ public sealed class MessagesController(
             var problemDetails = new ValidationProblemDetails();
             foreach (var error in validationResult.Errors)
             {
-                problemDetails.Errors.Add(error.PropertyName, new[] { error.ErrorMessage });
+                problemDetails.Errors.Add(error.PropertyName, [error.ErrorMessage]);
                 problemDetails.Extensions.Add($"errorCode_{error.PropertyName}", error.ErrorCode);
             }
             problemDetails.Title = "Validation failed";
@@ -105,7 +105,7 @@ public sealed class MessagesController(
             ct);
 
         var dto = this.MapToDto(created, includeMetadata: true);
-        return this.Created($"/api/orgs/{orgId}/threads/{threadId}/messages/{dto.Id}", dto);
+        return this.CreatedAtRoute("ListMessages", new { orgId, threadId }, dto);
     }
 
     private MessageDto MapToDto(ChatMessage x, bool includeMetadata = false) => new()

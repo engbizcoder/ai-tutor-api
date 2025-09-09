@@ -14,6 +14,10 @@ public sealed class StartupSeeder(IServiceProvider services) : IHostedService
         var members = scope.ServiceProvider.GetRequiredService<IOrgMemberRepository>();
         var threads = scope.ServiceProvider.GetRequiredService<IThreadRepository>();
         var messages = scope.ServiceProvider.GetRequiredService<IMessageRepository>();
+        var files = scope.ServiceProvider.GetRequiredService<IFileRepository>();
+        var attachments = scope.ServiceProvider.GetRequiredService<IAttachmentRepository>();
+        var references = scope.ServiceProvider.GetRequiredService<IReferenceRepository>();
+        var storage = scope.ServiceProvider.GetRequiredService<IFileStorageAdapter>();
 
         // Create/find demo org and user
         var org = await orgs.GetBySlugAsync("demo", cancellationToken);
@@ -87,6 +91,51 @@ public sealed class StartupSeeder(IServiceProvider services) : IHostedService
             Content = "Of course! In a right-angled triangle, a^2 + b^2 = c^2 where c is the hypotenuse. Want to try an example?",
         };
         await messages.AddAsync(m2, cancellationToken);
+
+        // Seed a sample file, attachment, and reference
+        // Create a small dummy PDF file in storage
+        var demoBytes = System.Text.Encoding.UTF8.GetBytes("%PDF-1.4\n% Demo PDF content for seeding\n");
+        await using var demoStream = new MemoryStream(demoBytes, writable: false);
+        var storageKey = await storage.UploadAsync(demoStream, "demo.pdf", "application/pdf", cancellationToken);
+        var storageUrl = await storage.GetPresignedUrlAsync(storageKey, TimeSpan.FromHours(1), cancellationToken);
+
+        var storedFile = new StoredFile
+        {
+            OrgId = org.Id,
+            OwnerUserId = user.Id,
+            FileName = "demo.pdf",
+            ContentType = "application/pdf",
+            StorageKey = storageKey,
+            StorageUrl = storageUrl,
+            SizeBytes = demoBytes.LongLength,
+            Pages = 1,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+        storedFile = await files.AddAsync(storedFile, cancellationToken);
+
+        // Create an attachment linking the file to the first user message
+        var attachment = new Attachment
+        {
+            MessageId = m1.Id,
+            FileId = storedFile.Id,
+            Type = AttachmentType.Document,
+            CreatedAt = DateTime.UtcNow,
+        };
+        await attachments.AddAsync(attachment, cancellationToken);
+
+        // Create a reference pointing to the file within the thread
+        var reference = new Reference
+        {
+            ThreadId = thread.Id,
+            MessageId = m1.Id,
+            Type = ReferenceType.File,
+            Title = "Pythagoras Theorem PDF",
+            FileId = storedFile.Id,
+            CreatedAt = DateTime.UtcNow,
+        };
+        reference.Validate();
+        await references.AddAsync(reference, org.Id, cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
