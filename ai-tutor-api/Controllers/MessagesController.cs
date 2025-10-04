@@ -1,19 +1,23 @@
 namespace Ai.Tutor.Api.Controllers;
 
 using Ai.Tutor.Api.DTOs;
+using Ai.Tutor.Api.Services;
 using Ai.Tutor.Services.Mediation;
 using Contracts.DTOs;
 using Contracts.Enums;
 using Domain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 [ApiController]
 [Route("api/orgs/{orgId:guid}/threads/{threadId:guid}/messages")]
 public sealed class MessagesController(
     IMediator mediator,
     IValidator<ListMessagesQueryParams> listValidator,
-    IValidator<Contracts.DTOs.CreateMessageRequest> createValidator) : ControllerBase
+    IValidator<Contracts.DTOs.CreateMessageRequest> createValidator,
+    ISignalRBroadcastService signalRBroadcastService,
+    ILogger<MessagesController> logger) : ControllerBase
 {
     [HttpGet(Name = "ListMessages")]
     public async Task<ActionResult<PagedMessagesResponse>> ListAsync(
@@ -104,6 +108,16 @@ public sealed class MessagesController(
             },
             ct);
 
+        // Fire-and-forget SignalR broadcast, do not impact HTTP response on failure
+        try
+        {
+            await signalRBroadcastService.BroadcastMessageCreatedAsync(created, ct);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "SignalR broadcast failed for created message. OrgId={OrgId}, ThreadId={ThreadId}, MessageId={MessageId}", orgId, threadId, created.Id);
+        }
+
         var dto = this.MapToDto(created, includeMetadata: true);
         return this.CreatedAtRoute("ListMessages", new { orgId, threadId }, dto);
     }
@@ -121,3 +135,4 @@ public sealed class MessagesController(
         UpdatedAt = x.UpdatedAt,
     };
 }
+

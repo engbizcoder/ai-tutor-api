@@ -22,6 +22,11 @@ public static class ProblemDetailsSetupExtensions
             // Map structured API exceptions using their metadata
             options.Map<BaseApiException>(ex => new ProblemDetailsException(ex.StatusCode, ex.Message));
 
+            // Map SignalR domain exceptions with specific HTTP status codes
+            options.Map<ThreadAccessDeniedException>(ex => new ProblemDetailsException(StatusCodes.Status403Forbidden, ex.Message));
+            options.Map<InvalidThreadException>(ex => new ProblemDetailsException(StatusCodes.Status400BadRequest, ex.Message));
+            options.Map<SignalRConnectionException>(ex => new ProblemDetailsException(StatusCodes.Status500InternalServerError, ex.Message));
+
             // Map common framework exceptions to HTTP status codes
             options.Map<KeyNotFoundException>(ex => new ProblemDetailsException(StatusCodes.Status404NotFound, ex.Message));
             options.Map<UnauthorizedAccessException>(ex => new ProblemDetailsException(StatusCodes.Status401Unauthorized, ex.Message));
@@ -66,6 +71,21 @@ public static class ProblemDetailsSetupExtensions
                     {
                         details.Extensions[kvp.Key] = kvp.Value;
                     }
+                }
+                else if (originalException is ThreadAccessDeniedException)
+                {
+                    code = "THREAD_ACCESS_DENIED";
+                    retryable = false;
+                }
+                else if (originalException is InvalidThreadException)
+                {
+                    code = "INVALID_THREAD";
+                    retryable = false;
+                }
+                else if (originalException is SignalRConnectionException)
+                {
+                    code = "SIGNALR_CONNECTION_ERROR";
+                    retryable = true;
                 }
                 else
                 {
@@ -117,3 +137,4 @@ public static class ProblemDetailsSetupExtensions
     public static IApplicationBuilder UseApiProblemDetails(this IApplicationBuilder app)
         => app.UseProblemDetails();
 }
+

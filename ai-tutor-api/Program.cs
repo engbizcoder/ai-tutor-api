@@ -13,6 +13,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Ai.Tutor.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +62,9 @@ builder.Services.AddScoped<IMediator, Mediator>();
 // Register handlers by assembly scanning (ai-tutor-services)
 builder.Services.AddMediatorHandlersFromAssembly(typeof(DeleteFolderHandler).Assembly);
 
+// SignalR broadcast service
+builder.Services.AddScoped<ISignalRBroadcastService, SignalRBroadcastService>();
+
 // Seeding: disable in Testing environment so integration tests control their own data
 if (!builder.Environment.IsEnvironment("Testing"))
 {
@@ -101,7 +105,7 @@ if (!app.Environment.IsEnvironment("Testing"))
 // Map controllers and SignalR hub placeholder
 app.MapControllers();
 
-app.MapHub<Microsoft.AspNetCore.SignalR.Hub>("/hubs/threads");
+app.MapHub<ThreadsHub>("/hubs/threads");
 
 app.Run();
 
