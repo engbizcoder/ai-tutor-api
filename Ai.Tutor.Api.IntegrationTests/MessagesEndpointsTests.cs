@@ -62,7 +62,9 @@ public sealed class MessagesEndpointsTests : IntegrationTestBase
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var content = await response.Content.ReadAsStringAsync();
+#pragma warning disable CA1307
         Assert.Contains("MESSAGES_001", content);
+#pragma warning restore CA1307
     }
 
     [Fact]

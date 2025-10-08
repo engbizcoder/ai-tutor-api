@@ -19,4 +19,3 @@ public sealed class ListMessagesRequestValidator : AbstractValidator<ListMessage
             .When(x => !string.IsNullOrEmpty(x.Cursor));
     }
 }
-

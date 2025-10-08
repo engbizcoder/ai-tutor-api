@@ -9,7 +9,9 @@ using Xunit;
 
 public abstract class IntegrationTestBase : IAsyncLifetime
 {
+#pragma warning disable CA1051
     protected readonly TestWebAppFactory Factory;
+#pragma warning restore CA1051
 
     protected IntegrationTestBase(TestWebAppFactory factory)
     {

@@ -25,6 +25,7 @@ public sealed class SignalRBroadcastService(
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to broadcast MessageCreated for ThreadId={ThreadId} MessageId={MessageId}", message.ThreadId, message.Id);
+
             // swallow to avoid impacting API request flow
         }
     }

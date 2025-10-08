@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 /// Background service responsible for purging organizations that have exceeded their retention period.
 /// </summary>
 public sealed class OrgPurgeBackgroundService(
-    IServiceProvider serviceProvider,
     IOrgDeletionService orgDeletionService,
     ILogger<OrgPurgeBackgroundService> logger) : BackgroundService
 {
@@ -124,7 +123,7 @@ public sealed class OrgPurgeReport
 {
     public DateTime GeneratedAt { get; set; }
 
-    public List<Guid> OrganizationsReadyForPurge { get; set; } = [];
+    public IReadOnlyCollection<Guid> OrganizationsReadyForPurge { get; set; } = [];
 
     public int TotalCount { get; set; }
 }

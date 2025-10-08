@@ -1,5 +1,6 @@
 using System.Globalization;
 using Ai.Tutor.Api.DTOs;
+using Ai.Tutor.Api.Hubs;
 using Ai.Tutor.Api.Seeding;
 using Ai.Tutor.Api.Services;
 using Ai.Tutor.Api.Validators;
@@ -13,7 +14,6 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Ai.Tutor.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 

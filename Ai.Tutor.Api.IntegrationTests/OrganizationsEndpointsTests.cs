@@ -26,7 +26,7 @@ public sealed class OrganizationsEndpointsTests : IntegrationTestBase
 
         // Act
         var client = this.CreateClient();
-        var response = await client.PostAsync(new Uri(client.BaseAddress, $"/api/organizations/{org.Id}/disable"), null);
+        var response = await client.PostAsync(new Uri(client.BaseAddress!, $"/api/organizations/{org.Id}/disable"), null);
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
@@ -48,7 +48,7 @@ public sealed class OrganizationsEndpointsTests : IntegrationTestBase
 
         // Act
         var client = this.CreateClient();
-        var response = await client.PostAsync(new Uri(client.BaseAddress, $"/api/organizations/{nonExistentOrgId}/disable"), null);
+        var response = await client.PostAsync(new Uri(client.BaseAddress!, $"/api/organizations/{nonExistentOrgId}/disable"), null);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -65,7 +65,7 @@ public sealed class OrganizationsEndpointsTests : IntegrationTestBase
 
         // Act
         var client = this.CreateClient();
-        var response = await client.DeleteAsync(new Uri(client.BaseAddress, $"/api/organizations/{org.Id}"));
+        var response = await client.DeleteAsync(new Uri(client.BaseAddress!, $"/api/organizations/{org.Id}"));
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
@@ -88,7 +88,7 @@ public sealed class OrganizationsEndpointsTests : IntegrationTestBase
 
         // Act
         var client = this.CreateClient();
-        var response = await client.DeleteAsync(new Uri(client.BaseAddress, $"/api/organizations/{nonExistentOrgId}"));
+        var response = await client.DeleteAsync(new Uri(client.BaseAddress!, $"/api/organizations/{nonExistentOrgId}"));
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -106,7 +106,7 @@ public sealed class OrganizationsEndpointsTests : IntegrationTestBase
         var client = this.CreateClient();
 
         // First soft-delete the organization (required before hard delete)
-        var softDeleteResponse = await client.DeleteAsync(new Uri(client.BaseAddress, $"/api/organizations/{org.Id}"));
+        var softDeleteResponse = await client.DeleteAsync(new Uri(client.BaseAddress!, $"/api/organizations/{org.Id}"));
         Assert.Equal(HttpStatusCode.NoContent, softDeleteResponse.StatusCode);
 
         // Update the org to have an expired retention period so it can be hard-deleted
@@ -118,7 +118,7 @@ public sealed class OrganizationsEndpointsTests : IntegrationTestBase
         await updateDbContext.SaveChangesAsync();
 
         // Act - Hard delete the organization
-        var response = await client.DeleteAsync(new Uri(client.BaseAddress, $"/api/organizations/{org.Id}/hard"));
+        var response = await client.DeleteAsync(new Uri(client.BaseAddress!, $"/api/organizations/{org.Id}/hard"));
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
@@ -138,7 +138,7 @@ public sealed class OrganizationsEndpointsTests : IntegrationTestBase
 
         // Act
         var client = this.CreateClient();
-        var response = await client.DeleteAsync(new Uri(client.BaseAddress, $"/api/organizations/{nonExistentOrgId}/hard"));
+        var response = await client.DeleteAsync(new Uri(client.BaseAddress!, $"/api/organizations/{nonExistentOrgId}/hard"));
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -156,10 +156,10 @@ public sealed class OrganizationsEndpointsTests : IntegrationTestBase
         var client = this.CreateClient();
 
         // First disable the org
-        await client.PostAsync(new Uri(client.BaseAddress, $"/api/organizations/{org.Id}/disable"), null);
+        await client.PostAsync(new Uri(client.BaseAddress!, $"/api/organizations/{org.Id}/disable"), null);
 
         // Act - Try to disable again
-        var response = await client.PostAsync(new Uri(client.BaseAddress, $"/api/organizations/{org.Id}/disable"), null);
+        var response = await client.PostAsync(new Uri(client.BaseAddress!, $"/api/organizations/{org.Id}/disable"), null);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);

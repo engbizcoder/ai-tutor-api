@@ -6,6 +6,8 @@ namespace Ai.Tutor.Contracts.Enums;
 /// </summary>
 public enum ApiErrorCode
 {
+    NoError = 0,
+
     // General errors (1000-1999)
     BadRequest = 1000,
     Unauthorized = 1001,

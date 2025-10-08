@@ -28,7 +28,12 @@ public abstract class BaseApiException : Exception
     public abstract ApiErrorCode ErrorCode { get; }
 
     /// <summary>
-    /// Gets whether this error is retryable by the client.
+    /// Gets the HTTP status code that should be returned for this exception.
+    /// </summary>
+    public abstract int StatusCode { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether gets whether this error is retryable by the client.
     /// </summary>
     public virtual bool IsRetryable => false;
 
@@ -39,9 +44,4 @@ public abstract class BaseApiException : Exception
     {
         return new Dictionary<string, object>();
     }
-
-    /// <summary>
-    /// Gets the HTTP status code that should be returned for this exception.
-    /// </summary>
-    public abstract int StatusCode { get; }
 }

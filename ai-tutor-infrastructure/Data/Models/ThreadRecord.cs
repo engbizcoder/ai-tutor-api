@@ -30,5 +30,5 @@ public sealed class ThreadRecord : ICreatedAtEntity, IUpdatedAtEntity
 
     public DateTime? UpdatedAt { get; set; }
 
-    public ICollection<MessageRecord> Messages { get; set; } = [];
+    public ICollection<MessageRecord> Messages { get; } = [];
 }

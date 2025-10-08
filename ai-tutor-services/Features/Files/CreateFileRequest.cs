@@ -1,8 +1,8 @@
 namespace Ai.Tutor.Services.Features.Files;
 
 using System.IO;
-using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
 
 public sealed class CreateFileRequest : IRequest<StoredFile>
 {

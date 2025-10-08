@@ -1,7 +1,7 @@
 namespace Ai.Tutor.Services.Features.Files;
 
-using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
 
 public sealed class ListFilesRequest : IRequest<(IReadOnlyList<StoredFile> Items, string? NextCursor)>
 {

@@ -31,7 +31,7 @@ public sealed class MessagesController(
         // Validate request parameters using FluentValidation
         var queryParams = new ListMessagesQueryParams { PageSize = pageSize, Cursor = cursor };
         var validationResult = await listValidator.ValidateAsync(queryParams, ct);
-        
+
         if (!validationResult.IsValid)
         {
             var problemDetails = new ValidationProblemDetails();
@@ -40,6 +40,7 @@ public sealed class MessagesController(
                 problemDetails.Errors.Add(error.PropertyName, [error.ErrorMessage]);
                 problemDetails.Extensions.Add($"errorCode_{error.PropertyName}", error.ErrorCode);
             }
+
             problemDetails.Title = "Validation failed";
             problemDetails.Status = StatusCodes.Status400BadRequest;
             return this.BadRequest(problemDetails);
@@ -74,7 +75,7 @@ public sealed class MessagesController(
     {
         // Validate request using FluentValidation
         var validationResult = await createValidator.ValidateAsync(req, ct);
-        
+
         if (!validationResult.IsValid)
         {
             var problemDetails = new ValidationProblemDetails();
@@ -83,6 +84,7 @@ public sealed class MessagesController(
                 problemDetails.Errors.Add(error.PropertyName, [error.ErrorMessage]);
                 problemDetails.Extensions.Add($"errorCode_{error.PropertyName}", error.ErrorCode);
             }
+
             problemDetails.Title = "Validation failed";
             problemDetails.Status = StatusCodes.Status400BadRequest;
             return this.BadRequest(problemDetails);
@@ -135,4 +137,3 @@ public sealed class MessagesController(
         UpdatedAt = x.UpdatedAt,
     };
 }
-

@@ -1,7 +1,7 @@
+namespace Ai.Tutor.Infrastructure.Data;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-
-namespace Ai.Tutor.Infrastructure.Data;
 
 public class AiTutorDbContextFactory : IDesignTimeDbContextFactory<AiTutorDbContext>
 {

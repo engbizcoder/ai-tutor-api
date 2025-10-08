@@ -29,15 +29,19 @@ public sealed class FilesEndpointsTests : IntegrationTestBase
         var (org, user) = await DbSeed.EnsureOrgAndUserAsync(db);
 
         // Build multipart form data: meta fields + file
-        var content = new MultipartFormDataContent();
+        using var content = new MultipartFormDataContent();
         var fileBytes = Encoding.UTF8.GetBytes("hello world");
-        var fileContent = new ByteArrayContent(fileBytes);
+        using var fileContent = new ByteArrayContent(fileBytes);
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
         content.Add(fileContent, name: "file", fileName: "hello.txt");
-        content.Add(new StringContent("hello.txt"), "FileName");
-        content.Add(new StringContent("text/plain"), "ContentType");
 
-        var uploadResponse = await client.PostAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/files?ownerUserId={user.Id}"), content);
+        using var fileNameContent = new StringContent("hello.txt");
+        content.Add(fileNameContent, "FileName");
+
+        using var contentTypeContent = new StringContent("text/plain");
+        content.Add(contentTypeContent, "ContentType");
+
+        using var uploadResponse = await client.PostAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/files?ownerUserId={user.Id}"), content);
         uploadResponse.EnsureSuccessStatusCode();
         Assert.Equal(HttpStatusCode.Created, uploadResponse.StatusCode);
 
@@ -74,24 +78,29 @@ public sealed class FilesEndpointsTests : IntegrationTestBase
         var (org, user) = await DbSeed.EnsureOrgAndUserAsync(db);
 
         // Upload a small file first
-        var content = new MultipartFormDataContent();
+        using var content = new MultipartFormDataContent();
         var fileBytes = Encoding.UTF8.GetBytes("download me");
-        var fileContent = new ByteArrayContent(fileBytes);
+        using var fileContent = new ByteArrayContent(fileBytes);
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
         content.Add(fileContent, name: "file", fileName: "readme.txt");
-        content.Add(new StringContent("readme.txt"), "FileName");
-        content.Add(new StringContent("text/plain"), "ContentType");
 
-        var uploadResponse = await client.PostAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/files?ownerUserId={user.Id}"), content);
+        using var fileNameContent = new StringContent("readme.txt");
+        content.Add(fileNameContent, "FileName");
+
+        using var contentTypeContent = new StringContent("text/plain");
+        content.Add(contentTypeContent, "ContentType");
+
+        using var uploadResponse = await client.PostAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/files?ownerUserId={user.Id}"), content);
         uploadResponse.EnsureSuccessStatusCode();
         var uploadBody = await uploadResponse.Content.ReadAsStringAsync();
         var fileDto = JsonSerializer.Deserialize<FileDto>(uploadBody, Options)!;
 
         // Download
-        var downloadResponse = await client.GetAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/files/{fileDto.Id}/download"));
+        using var downloadResponse = await client.GetAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/files/{fileDto.Id}/download"));
         downloadResponse.EnsureSuccessStatusCode();
-        Assert.Equal("text/plain", downloadResponse.Content.Headers.ContentType?.MediaType);
-        var data = await downloadResponse.Content.ReadAsByteArrayAsync();
+        using var downloadContent = downloadResponse.Content;
+        Assert.Equal("text/plain", downloadContent.Headers.ContentType?.MediaType);
+        var data = await downloadContent.ReadAsByteArrayAsync();
         Assert.Equal(fileBytes, data);
     }
 }

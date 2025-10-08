@@ -67,17 +67,23 @@ public sealed class AttachmentsEndpointsTests : IntegrationTestBase
 
     private static async Task<FileDto> UploadSmallFileAsync(HttpClient client, Guid orgId, Guid ownerUserId)
     {
-        var content = new MultipartFormDataContent();
+        using var content = new MultipartFormDataContent();
         var fileBytes = Encoding.UTF8.GetBytes("attach file");
-        var fileContent = new ByteArrayContent(fileBytes);
+        using var fileContent = new ByteArrayContent(fileBytes);
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
         content.Add(fileContent, name: "file", fileName: "attach.txt");
-        content.Add(new StringContent("attach.txt"), "FileName");
-        content.Add(new StringContent("text/plain"), "ContentType");
 
-        var uploadResponse = await client.PostAsync(new Uri(client.BaseAddress!, $"/api/orgs/{orgId}/files?ownerUserId={ownerUserId}"), content);
+        using var fileNameContent = new StringContent("attach.txt");
+        content.Add(fileNameContent, "FileName");
+
+        using var contentTypeContent = new StringContent("text/plain");
+        content.Add(contentTypeContent, "ContentType");
+
+        using var uploadResponse = await client.PostAsync(new Uri(client.BaseAddress!, $"/api/orgs/{orgId}/files?ownerUserId={ownerUserId}"), content);
         uploadResponse.EnsureSuccessStatusCode();
-        var body = await uploadResponse.Content.ReadAsStringAsync();
+
+        using var responseContent = uploadResponse.Content;
+        var body = await responseContent.ReadAsStringAsync();
         return JsonSerializer.Deserialize<FileDto>(body, Options)!;
     }
 }

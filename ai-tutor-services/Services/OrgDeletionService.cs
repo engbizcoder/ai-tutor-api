@@ -1,8 +1,11 @@
 namespace Ai.Tutor.Services.Services;
 
-using Domain.Repositories;
 using Domain.Enums;
+using Domain.Repositories;
 
+/// <summary>
+/// Provides services for managing organization deletion lifecycle including soft delete, hard delete, and related operations.
+/// </summary>
 public sealed class OrgDeletionService(
     IUnitOfWork unitOfWork,
     IThreadRepository threadRepository,
@@ -13,7 +16,7 @@ public sealed class OrgDeletionService(
     IUserRepository userRepository) : IOrgDeletionService
 {
     /// <summary>
-    /// Soft-deletes an organization by setting it to Disabled status (read-only)
+    /// Soft-deletes an organization by setting it to Disabled status (read-only).
     /// </summary>
     public async Task DisableOrgAsync(Guid orgId, CancellationToken cancellationToken = default)
     {
@@ -37,7 +40,7 @@ public sealed class OrgDeletionService(
     }
 
     /// <summary>
-    /// Soft-deletes an organization by setting it to Deleted status and handling user memberships
+    /// Soft-deletes an organization by setting it to Deleted status and handling user memberships.
     /// </summary>
     public async Task SoftDeleteOrgAsync(Guid orgId, CancellationToken cancellationToken = default)
     {
@@ -68,7 +71,7 @@ public sealed class OrgDeletionService(
     }
 
     /// <summary>
-    /// Hard-deletes (purges) an organization and all its data permanently
+    /// Hard-deletes (purges) an organization and all its data permanently.
     /// </summary>
     public async Task HardDeleteOrgAsync(Guid orgId, CancellationToken cancellationToken = default)
     {
@@ -101,7 +104,7 @@ public sealed class OrgDeletionService(
     }
 
     /// <summary>
-    /// Legacy method - now performs soft delete instead of hard delete
+    /// Legacy method - now performs soft delete instead of hard delete.
     /// </summary>
     [Obsolete("Use SoftDeleteOrgAsync instead. This method now performs soft delete for safety.")]
     public async Task DeleteOrgAndDataAsync(Guid orgId, CancellationToken cancellationToken = default)
@@ -110,7 +113,7 @@ public sealed class OrgDeletionService(
     }
 
     /// <summary>
-    /// Gets organizations that are ready for hard deletion (past retention period)
+    /// Gets organizations that are ready for hard deletion (past retention period).
     /// </summary>
     public async Task<List<Guid>> GetOrgsReadyForPurgeAsync(CancellationToken cancellationToken = default)
     {

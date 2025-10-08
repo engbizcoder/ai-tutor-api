@@ -1,15 +1,14 @@
 namespace Ai.Tutor.Services.Features.References;
 
-using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Domain.Exceptions;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 public sealed class CreateReferenceHandler(
     IReferenceRepository references,
     IThreadRepository threads,
-    IMessageRepository messages,
     IFileRepository files,
     IUnitOfWork uow,
     ILogger<CreateReferenceHandler> logger) : IRequestHandler<CreateReferenceRequest, Reference>
@@ -46,10 +45,12 @@ public sealed class CreateReferenceHandler(
         entity.Validate();
 
         Reference created = entity;
-        await uow.ExecuteInTransactionAsync(async ctk =>
+        await uow.ExecuteInTransactionAsync(
+            async ctk =>
         {
             created = await references.AddAsync(entity, request.OrgId, ctk);
-        }, ct);
+        },
+            ct);
 
         logger.LogInformation("Reference {ReferenceId} created", created.Id);
         return created;

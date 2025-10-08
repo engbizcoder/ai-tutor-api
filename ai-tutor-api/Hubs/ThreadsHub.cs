@@ -27,7 +27,13 @@ public sealed class ThreadsHub(
             if (!Guid.TryParse(orgIdStr, out var orgId))
             {
                 await this.Clients.Caller.ErrorOccurred(
-                    new SignalRErrorDto { Code = "INVALID_THREAD", Message = "Missing or invalid orgId.", Retryable = false, Metadata = new { orgId = orgIdStr } });
+                    new SignalRErrorDto
+                    {
+                        Code = "INVALID_THREAD",
+                        Message = "Missing or invalid orgId.",
+                        Retryable = false,
+                        Metadata = new Dictionary<string, object> { { "orgId", orgId } },
+                    });
                 throw new SignalRConnectionException("Missing or invalid orgId.");
             }
 
@@ -35,7 +41,13 @@ public sealed class ThreadsHub(
             if (!string.IsNullOrWhiteSpace(userIdStr) && !Guid.TryParse(userIdStr, out _))
             {
                 await this.Clients.Caller.ErrorOccurred(
-                    new SignalRErrorDto { Code = "THREAD_ACCESS_DENIED", Message = "Invalid userId.", Retryable = false, Metadata = new { userId = userIdStr } });
+                    new SignalRErrorDto
+                    {
+                        Code = "THREAD_ACCESS_DENIED",
+                        Message = "Invalid userId.",
+                        Retryable = false,
+                        Metadata = new Dictionary<string, object> { { "userId", userIdStr } },
+                    });
                 throw new ThreadAccessDeniedException("Invalid userId.");
             }
 
@@ -44,25 +56,43 @@ public sealed class ThreadsHub(
             if (org is null)
             {
                 await this.Clients.Caller.ErrorOccurred(
-                    new SignalRErrorDto { Code = "INVALID_THREAD", Message = "Organization not found.", Retryable = false, Metadata = new { orgId } });
+                    new SignalRErrorDto
+                    {
+                        Code = "INVALID_THREAD",
+                        Message = "Organization not found.",
+                        Retryable = false,
+                        Metadata = new Dictionary<string, object> { { "orgId", orgId } },
+                    });
                 throw new InvalidThreadException($"Organization {orgId} not found.");
             }
 
             // Validate user membership
-            var userOrgIds = GetUserOrgIds();
+            var userOrgIds = this.GetUserOrgIds();
             if (!userOrgIds.Contains(orgId))
             {
                 await this.Clients.Caller.ErrorOccurred(
-                    new SignalRErrorDto { Code = "THREAD_ACCESS_DENIED", Message = "User does not belong to the organization.", Retryable = false, Metadata = new { orgId } });
+                    new SignalRErrorDto
+                    {
+                        Code = "THREAD_ACCESS_DENIED",
+                        Message = "User does not belong to the organization.",
+                        Retryable = false,
+                        Metadata = new Dictionary<string, object> { { "orgId", orgId } },
+                    });
                 throw new ThreadAccessDeniedException($"User does not have access to org {orgId}.");
             }
 
-            logger.LogInformation("SignalR connected. ConnectionId={ConnectionId}, OrgId={OrgId}", this.Context.ConnectionId, orgId);
+            logger.LogInformation(
+                "SignalR connected. ConnectionId={ConnectionId}, OrgId={OrgId}",
+                this.Context.ConnectionId,
+                orgId);
             await base.OnConnectedAsync();
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error during SignalR connection initialization. ConnectionId={ConnectionId}", this.Context.ConnectionId);
+            logger.LogError(
+                ex,
+                "Error during SignalR connection initialization. ConnectionId={ConnectionId}",
+                this.Context.ConnectionId);
             throw;
         }
     }
@@ -83,7 +113,12 @@ public sealed class ThreadsHub(
         }
         catch (Exception ex)
         {
-            await this.Clients.Caller.ErrorOccurred(new SignalRErrorDto { Code = "SIGNALR_CONNECTION_ERROR", Message = "Failed to join thread group.", Retryable = true, Metadata = new { threadId } });
+            await this.Clients.Caller.ErrorOccurred(
+                new SignalRErrorDto
+                {
+                    Code = "SIGNALR_CONNECTION_ERROR", Message = "Failed to join thread group.", Retryable = true,
+                    Metadata = new Dictionary<string, object> { { "threadId", threadId } },
+                });
             throw new SignalRConnectionException("Failed to join thread group.", ex);
         }
     }
@@ -98,7 +133,12 @@ public sealed class ThreadsHub(
         }
         catch (Exception ex)
         {
-            await this.Clients.Caller.ErrorOccurred(new SignalRErrorDto { Code = "SIGNALR_CONNECTION_ERROR", Message = "Failed to leave thread group.", Retryable = true, Metadata = new { threadId } });
+            await this.Clients.Caller.ErrorOccurred(
+                new SignalRErrorDto
+                {
+                    Code = "SIGNALR_CONNECTION_ERROR", Message = "Failed to leave thread group.", Retryable = true,
+                    Metadata = new Dictionary<string, object> { { "threadId", threadId } },
+                });
             throw new SignalRConnectionException("Failed to leave thread group.", ex);
         }
     }
@@ -107,13 +147,18 @@ public sealed class ThreadsHub(
     {
         try
         {
-            var userId = GetUserId();
-            var userName = GetUserName();
+            var userId = this.GetUserId();
+            var userName = this.GetUserName();
             await this.BroadcastTypingIndicator(threadId, userId, userName, isTyping);
         }
         catch (Exception ex)
         {
-            await this.Clients.Caller.ErrorOccurred(new SignalRErrorDto { Code = "SIGNALR_CONNECTION_ERROR", Message = "Failed to send typing indicator.", Retryable = true, Metadata = new { threadId, isTyping } });
+            await this.Clients.Caller.ErrorOccurred(
+                new SignalRErrorDto
+                {
+                    Code = "SIGNALR_CONNECTION_ERROR", Message = "Failed to send typing indicator.", Retryable = true,
+                    Metadata = new Dictionary<string, object> { { "threadId", threadId }, { "isTyping", isTyping } },
+                });
             throw new SignalRConnectionException("Failed to send typing indicator.", ex);
         }
     }
@@ -127,7 +172,12 @@ public sealed class ThreadsHub(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to broadcast typing indicator. ThreadId={ThreadId}, UserId={UserId}, IsTyping={IsTyping}", threadId, userId, isTyping);
+            logger.LogError(
+                ex,
+                "Failed to broadcast typing indicator. ThreadId={ThreadId}, UserId={UserId}, IsTyping={IsTyping}",
+                threadId,
+                userId,
+                isTyping);
             throw new SignalRConnectionException("Failed to broadcast typing indicator.", ex);
         }
     }

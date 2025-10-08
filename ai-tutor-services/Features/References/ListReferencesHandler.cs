@@ -1,9 +1,9 @@
 namespace Ai.Tutor.Services.Features.References;
 
-using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Domain.Exceptions;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 public sealed class ListReferencesHandler(
@@ -22,7 +22,7 @@ public sealed class ListReferencesHandler(
         logger.LogInformation("Listing references for thread {ThreadId} in org {OrgId} with page size {PageSize}", request.ThreadId, request.OrgId, pageSize);
 
         // Validate thread exists and belongs to org
-        _ = await threads.GetAsync(request.ThreadId, request.OrgId, ct) 
+        _ = await threads.GetAsync(request.ThreadId, request.OrgId, ct)
             ?? throw new ThreadNotFoundException($"Thread {request.ThreadId} not found in org {request.OrgId}");
 
         var result = await references.ListByThreadPagedAsync(request.ThreadId, request.OrgId, pageSize, request.Cursor, ct);

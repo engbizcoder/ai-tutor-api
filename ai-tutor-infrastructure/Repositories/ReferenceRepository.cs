@@ -119,7 +119,7 @@ public sealed class ReferenceRepository(AiTutorDbContext db) : IReferenceReposit
         return ToDomain(rec);
     }
 
-    // Legacy method without tenancy validation - kept for backward compatibility  
+    // Legacy method without tenancy validation - kept for backward compatibility
     public async Task<(IReadOnlyList<Reference> Items, string? NextCursor)> ListByThreadPagedAsync(
         Guid threadId,
         int pageSize,

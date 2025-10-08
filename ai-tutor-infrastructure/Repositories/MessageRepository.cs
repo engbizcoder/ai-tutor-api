@@ -1,11 +1,11 @@
+namespace Ai.Tutor.Infrastructure.Repositories;
+
 using System.Text;
 using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Infrastructure.Data;
 using Ai.Tutor.Infrastructure.Data.Models;
 using Microsoft.EntityFrameworkCore;
-
-namespace Ai.Tutor.Infrastructure.Repositories;
 
 public sealed class MessageRepository(AiTutorDbContext db)
     : IMessageRepository

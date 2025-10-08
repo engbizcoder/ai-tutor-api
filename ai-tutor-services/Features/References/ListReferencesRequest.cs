@@ -1,7 +1,7 @@
 namespace Ai.Tutor.Services.Features.References;
 
-using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
 
 public sealed class ListReferencesRequest : IRequest<(IReadOnlyList<Reference> Items, string? NextCursor)>
 {

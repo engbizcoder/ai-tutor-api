@@ -9,5 +9,5 @@ public sealed class ListMessagesRequest
 
     public string? Cursor { get; init; }
 
-    public bool IncludeMetadata { get; init; } = false;
+    public bool IncludeMetadata { get; init; }
 }

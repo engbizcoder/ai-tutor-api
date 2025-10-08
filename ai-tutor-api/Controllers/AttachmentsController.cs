@@ -26,7 +26,6 @@ public sealed class AttachmentsController(
 {
     /// <summary>
     /// Gets an attachment by identifier within the specified message/thread/org.
-    /// 
     /// When to use: After creating an attachment or when you have an attachment id and need its details.
     /// Why: Provides direct lookup and validation that the attachment belongs to the route context.
     /// Returns 404 if not found or does not belong to the specified message.

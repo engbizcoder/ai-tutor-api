@@ -1,11 +1,13 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable disable
+﻿#nullable disable
 
 namespace Ai.Tutor.Infrastructure.Migrations
 {
+    using System;
+    using System.Diagnostics.CodeAnalysis;
+    using Microsoft.EntityFrameworkCore.Migrations;
+
     /// <inheritdoc />
+    [SuppressMessage("Performance", "CA1861:Avoid constant arrays as arguments", Justification = "ef core migration changes")]
     public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
@@ -38,7 +40,7 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     RetentionDays = table.Column<int>(type: "integer", nullable: false),
                     metadata = table.Column<string>(type: "jsonb", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -55,7 +57,7 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     email = table.Column<string>(type: "character varying(320)", maxLength: 320, nullable: false),
                     metadata = table.Column<string>(type: "jsonb", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -86,7 +88,7 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     OrgId1 = table.Column<Guid>(type: "uuid", nullable: true),
-                    OwnerUserId1 = table.Column<Guid>(type: "uuid", nullable: true)
+                    OwnerUserId1 = table.Column<Guid>(type: "uuid", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -130,7 +132,7 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     sort_order = table.Column<decimal>(type: "numeric(12,6)", precision: 12, scale: 6, nullable: false, defaultValue: 1000m),
                     metadata = table.Column<string>(type: "jsonb", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -162,7 +164,7 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     org_id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     role = table.Column<string>(type: "text", nullable: false),
-                    joined_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    joined_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -194,7 +196,7 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     sort_order = table.Column<decimal>(type: "numeric(18,6)", nullable: false, defaultValue: 1000m),
                     metadata = table.Column<string>(type: "jsonb", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -232,7 +234,7 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     metadata = table.Column<string>(type: "jsonb", nullable: true),
                     IdempotencyKey = table.Column<string>(type: "text", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -256,7 +258,7 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     metadata = table.Column<string>(type: "jsonb", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     MessageId1 = table.Column<Guid>(type: "uuid", nullable: true),
-                    FileId1 = table.Column<Guid>(type: "uuid", nullable: true)
+                    FileId1 = table.Column<Guid>(type: "uuid", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -302,7 +304,7 @@ namespace Ai.Tutor.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ThreadId1 = table.Column<Guid>(type: "uuid", nullable: true),
                     MessageId1 = table.Column<Guid>(type: "uuid", nullable: true),
-                    FileId1 = table.Column<Guid>(type: "uuid", nullable: true)
+                    FileId1 = table.Column<Guid>(type: "uuid", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -366,7 +368,9 @@ namespace Ai.Tutor.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "ix_messages_thread_created_id",
                 table: "chat_messages",
+#pragma warning disable CA1861
                 columns: new[] { "thread_id", "created_at", "id" });
+#pragma warning restore CA1861
 
             migrationBuilder.CreateIndex(
                 name: "IX_chat_threads_folder_id",

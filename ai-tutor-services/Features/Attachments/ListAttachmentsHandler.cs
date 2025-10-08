@@ -1,8 +1,8 @@
 namespace Ai.Tutor.Services.Features.Attachments;
 
-using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 public sealed class ListAttachmentsHandler(

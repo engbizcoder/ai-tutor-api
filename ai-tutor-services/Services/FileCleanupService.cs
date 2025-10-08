@@ -16,7 +16,7 @@ public sealed class FileCleanupService : IFileCleanupService
     private readonly ILogger<FileCleanupService> logger;
 
     /// <summary>
-    /// Creates a new instance of <see cref="FileCleanupService"/>.
+    /// Initializes a new instance of the <see cref="FileCleanupService"/> class.
     /// </summary>
     /// <param name="files">Repository for file metadata queries and deletions.</param>
     /// <param name="attachments">Repository for attachment queries.</param>

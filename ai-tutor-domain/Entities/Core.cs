@@ -44,7 +44,7 @@ public sealed class Org : AuditableEntity
 
     public string? MetadataJson { get; set; }
 
-    public ICollection<OrgMember> Members { get; set; } = [];
+    public ICollection<OrgMember> Members { get; } = [];
 }
 
 public sealed class User : AuditableEntity
@@ -184,7 +184,7 @@ public sealed class Reference : Entity, IHasCreatedAt
 
     public void Validate()
     {
-        if (string.IsNullOrWhiteSpace(Url) && !FileId.HasValue)
+        if (string.IsNullOrWhiteSpace(this.Url) && !this.FileId.HasValue)
         {
             throw new ArgumentException("Either Url or FileId must be provided for a Reference.");
         }

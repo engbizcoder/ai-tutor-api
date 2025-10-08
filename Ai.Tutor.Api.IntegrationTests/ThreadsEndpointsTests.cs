@@ -33,7 +33,7 @@ public sealed class ThreadsEndpointsTests : IntegrationTestBase
             SortOrder = 1000m,
         };
 
-        var createResp = await client.PostAsJsonAsync(new Uri(client.BaseAddress, $"/api/orgs/{org.Id}/threads"), createReq);
+        var createResp = await client.PostAsJsonAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/threads"), createReq);
         createResp.StatusCode.Should().Be(HttpStatusCode.Created);
         var created = await createResp.Content.ReadFromJsonAsync<ThreadDto>();
         created.Should().NotBeNull();
@@ -42,18 +42,18 @@ public sealed class ThreadsEndpointsTests : IntegrationTestBase
         created.FolderId.Should().Be(folder.Id);
 
         // Get by id
-        var getResp = await client.GetAsync(new Uri(client.BaseAddress, $"/api/orgs/{org.Id}/threads/{created.Id}"));
+        var getResp = await client.GetAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/threads/{created.Id}"));
         getResp.StatusCode.Should().Be(HttpStatusCode.OK);
         var fetched = await getResp.Content.ReadFromJsonAsync<ThreadDto>();
         fetched!.Id.Should().Be(created.Id);
 
         // List by folder
-        var listByFolder = await client.GetFromJsonAsync<List<ThreadDto>>(new Uri(client.BaseAddress, $"/api/orgs/{org.Id}/threads/by-folder?folderId={folder.Id}"));
+        var listByFolder = await client.GetFromJsonAsync<List<ThreadDto>>(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/threads/by-folder?folderId={folder.Id}"));
         listByFolder.Should().NotBeNull();
         listByFolder!.Any(t => t.Id == created.Id).Should().BeTrue();
 
         // List by user
-        var listByUser = await client.GetFromJsonAsync<List<ThreadDto>>(new Uri(client.BaseAddress, $"/api/orgs/{org.Id}/threads/by-user/{user.Id}"));
+        var listByUser = await client.GetFromJsonAsync<List<ThreadDto>>(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/threads/by-user/{user.Id}"));
         listByUser.Should().NotBeNull();
         listByUser!.Any(t => t.Id == created.Id).Should().BeTrue();
 
@@ -64,21 +64,21 @@ public sealed class ThreadsEndpointsTests : IntegrationTestBase
             Status = ThreadStatus.Archived,
             SortOrder = 999m,
         };
-        var updateResp = await client.PatchAsJsonAsync(new Uri(client.BaseAddress, $"/api/orgs/{org.Id}/threads/{created.Id}"), updateReq);
+        var updateResp = await client.PatchAsJsonAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/threads/{created.Id}"), updateReq);
         updateResp.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Verify update via GET
-        var afterUpdate = await client.GetFromJsonAsync<ThreadDto>(new Uri(client.BaseAddress, $"/api/orgs/{org.Id}/threads/{created.Id}"));
+        var afterUpdate = await client.GetFromJsonAsync<ThreadDto>(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/threads/{created.Id}"));
         afterUpdate!.Title.Should().Be("Updated title");
         afterUpdate.Status.Should().Be(ThreadStatus.Archived);
         afterUpdate.SortOrder.Should().Be(999m);
 
         // Delete
-        var deleteResp = await client.DeleteAsync(new Uri(client.BaseAddress, $"/api/orgs/{org.Id}/threads/{created.Id}"));
+        var deleteResp = await client.DeleteAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/threads/{created.Id}"));
         deleteResp.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Verify 404
-        var getAfterDelete = await client.GetAsync(new Uri(client.BaseAddress, $"/api/orgs/{org.Id}/threads/{created.Id}"));
+        var getAfterDelete = await client.GetAsync(new Uri(client.BaseAddress!, $"/api/orgs/{org.Id}/threads/{created.Id}"));
         getAfterDelete.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

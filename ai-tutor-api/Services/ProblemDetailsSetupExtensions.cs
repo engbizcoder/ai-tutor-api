@@ -137,4 +137,3 @@ public static class ProblemDetailsSetupExtensions
     public static IApplicationBuilder UseApiProblemDetails(this IApplicationBuilder app)
         => app.UseProblemDetails();
 }
-

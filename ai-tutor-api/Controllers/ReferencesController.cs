@@ -9,12 +9,12 @@ using Microsoft.AspNetCore.Mvc;
 
 /// <summary>
 /// Manages references that link threads/messages to external resources (URLs) or stored files.
-/// 
+///
 /// Use this controller to:
 /// - Create a reference for a thread (optionally tied to a message).
 /// - List references within a thread (cursor-based pagination).
 /// - Retrieve a single reference by id.
-/// 
+///
 /// Tenancy: All operations are scoped by <c>orgId</c> and <c>threadId</c>. File-backed references validate file ownership by organization.
 /// </summary>
 [ApiController]
@@ -25,7 +25,6 @@ public sealed class ReferencesController(
 {
     /// <summary>
     /// Gets a reference by identifier within the specified organization and thread.
-    /// 
     /// When to use: After creating a reference or when you have a reference id and need its details.
     /// Why: Provides direct lookup and validates the reference belongs to the route's thread and organization.
     /// Returns 404 if the reference is not found or does not belong to the thread/org context.
@@ -48,7 +47,6 @@ public sealed class ReferencesController(
 
     /// <summary>
     /// Lists references within a thread using cursor-based pagination.
-    /// 
     /// When to use: To display citations/resources attached to a thread, optionally tied to specific messages.
     /// Why: Supports efficient paging for long-running threads with many references.
     /// </summary>
@@ -81,7 +79,6 @@ public sealed class ReferencesController(
 
     /// <summary>
     /// Creates a reference for a thread (optionally tied to a specific message), pointing to a URL or a stored file.
-    /// 
     /// When to use: To associate learning materials, web links, or uploaded documents with a conversation thread.
     /// Why: Enables structured citations and resource tracking. Either <c>Url</c> or <c>FileId</c> must be provided.
     /// </summary>

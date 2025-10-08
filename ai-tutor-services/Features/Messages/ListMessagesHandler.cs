@@ -14,7 +14,7 @@ public sealed class ListMessagesHandler(
     public async Task<(IReadOnlyList<ChatMessage> Items, string? NextCursor)> Handle(ListMessagesRequest request, CancellationToken ct = default)
     {
         logger.LogInformation(
-            "Listing messages for thread {ThreadId} in org {OrgId} with page size {PageSize}", 
+            "Listing messages for thread {ThreadId} in org {OrgId} with page size {PageSize}",
             request.ThreadId,
             request.OrgId,
             request.PageSize);

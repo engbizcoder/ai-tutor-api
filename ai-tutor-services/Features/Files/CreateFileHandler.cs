@@ -1,8 +1,8 @@
 namespace Ai.Tutor.Services.Features.Files;
 
-using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 public sealed class CreateFileHandler(
@@ -46,10 +46,12 @@ public sealed class CreateFileHandler(
 
         StoredFile created = entity;
 
-        await uow.ExecuteInTransactionAsync(async ctk =>
+        await uow.ExecuteInTransactionAsync(
+            async ctk =>
         {
             created = await files.AddAsync(entity, ctk);
-        }, ct);
+        },
+            ct);
 
         logger.LogInformation("File {FileId} created successfully for org {OrgId}", created.Id, created.OrgId);
         return created;

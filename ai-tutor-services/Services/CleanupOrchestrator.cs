@@ -15,7 +15,7 @@ public sealed class CleanupOrchestrator : ICleanupOrchestrator
     private readonly IFileCleanupService fileCleanup;
 
     /// <summary>
-    /// Creates a new <see cref="CleanupOrchestrator"/>.
+    /// Initializes a new instance of the <see cref="CleanupOrchestrator"/> class.
     /// </summary>
     /// <param name="messages">Repository used to query message identifiers for given threads.</param>
     /// <param name="attachments">Repository used to query file identifiers attached to messages.</param>

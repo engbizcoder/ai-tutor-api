@@ -1,1 +1,15 @@
 root = true
+
+[*.cs]
+dotnet_analyzer_diagnostic.category-Documentation.severity = none
+dotnet_diagnostic.SA0001.severity = none
+dotnet_diagnostic.SA1633.severity = none
+dotnet_diagnostic.SA1135.severity = none
+dotnet_diagnostic.SA1649.severity = none
+dotnet_diagnostic.SA1401.severity = none
+dotnet_diagnostic.SA1402.severity = none
+dotnet_diagnostic.CA1056.severity = none
+dotnet_diagnostic.SA1010.severity = none
+dotnet_diagnostic.CA2227.severity = warning
+dotnet_diagnostic.CA1051.severity = warning
+dotnet_diagnostic.SA1633.severity = none

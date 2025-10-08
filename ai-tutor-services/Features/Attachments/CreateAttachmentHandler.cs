@@ -1,10 +1,10 @@
 namespace Ai.Tutor.Services.Features.Attachments;
 
-using Ai.Tutor.Domain.Entities;
+using Ai.Tutor.Domain.Exceptions;
 using Ai.Tutor.Domain.Repositories;
 using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
 using Microsoft.Extensions.Logging;
-using Ai.Tutor.Domain.Exceptions;
 
 public sealed class CreateAttachmentHandler(
     IAttachmentRepository attachments,
@@ -17,7 +17,7 @@ public sealed class CreateAttachmentHandler(
         logger.LogInformation("Creating attachment for message {MessageId} to file {FileId} in org {OrgId}", request.MessageId, request.FileId, request.OrgId);
 
         // Validate file exists and belongs to org
-        _ = await files.GetByIdAsync(request.FileId, request.OrgId, ct) 
+        _ = await files.GetByIdAsync(request.FileId, request.OrgId, ct)
             ?? throw new FileNotFoundException($"File {request.FileId} not found in org {request.OrgId}");
 
         var entity = new Attachment
@@ -29,10 +29,12 @@ public sealed class CreateAttachmentHandler(
         };
 
         Attachment created = entity;
-        await uow.ExecuteInTransactionAsync(async ctk =>
+        await uow.ExecuteInTransactionAsync(
+            async ctk =>
         {
             created = await attachments.AddAsync(entity, ctk);
-        }, ct);
+        },
+            ct);
 
         logger.LogInformation("Attachment {AttachmentId} created successfully", created.Id);
         return created;

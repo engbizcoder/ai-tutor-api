@@ -1,8 +1,8 @@
 namespace Ai.Tutor.Services.Features.References;
 
-using Ai.Tutor.Domain.Entities;
 using Ai.Tutor.Domain.Enums;
 using Ai.Tutor.Services.Mediation;
+using Domain.Entities;
 
 public sealed class CreateReferenceRequest : IRequest<Reference>
 {
